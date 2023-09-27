@@ -5,5 +5,13 @@ Team member 2: Michael Crespo
 Agreement:
 -- 	Ask for help if we are confused
 --  Use issues tab to organize tasks/workflow
+--  Have branches such as:
+        - main
+        - merge
+        - jp  
+        - mc
+--  We will split the work evenly unless someone wants to go out of their 
+    way and do something extra.
+        
 
 
