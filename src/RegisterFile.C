@@ -5,6 +5,7 @@
 //regInstance will be initialized to the single RegisterFile
 //object that is created
 RegisterFile * RegisterFile::regInstance = NULL;
+//int regArray [];
 
 /**
  * RegisterFile constructor
@@ -12,6 +13,11 @@ RegisterFile * RegisterFile::regInstance = NULL;
  */
 RegisterFile::RegisterFile()
 {
+for (int i = 0; i<=RegisterFile::size; i++){
+	reg[i] = 0;
+}
+	//regArray[0];
+		
 }
 
 /**
@@ -24,7 +30,12 @@ RegisterFile::RegisterFile()
  */
 RegisterFile * RegisterFile::getInstance()
 {
-   return NULL;
+
+	if (!regInstance){
+		regInstance = new RegisterFile;
+		
+	}
+   return regInstance;
 }
 
 /**
@@ -39,7 +50,13 @@ RegisterFile * RegisterFile::getInstance()
 */
 uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 {
+	
+	if (regNumber < RegisterFile::size){
+		error = false;
+		return reg[regNumber];
+	}
    //Use RegisterFile::size to determine whether regNumber is valid
+   error = true;
    return 0;
 }
 
@@ -55,8 +72,15 @@ uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 void RegisterFile::writeRegister(uint64_t value, int32_t regNumber, 
                                  bool & error)
 {
+	 //std::cout << "\n" << regNumber << ".\n"; 
+	
+	if (regNumber < RegisterFile::size){
+		
+		 reg[regNumber] = value;
+		 error == false;
+	}
    //Use RegisterFile::size to determine whether regNumber is valid
-   return;
+   error == true;
 }
 
 /**

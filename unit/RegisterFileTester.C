@@ -71,6 +71,7 @@ void RegisterFileTester::doReadWriteRegisterTests()
    {
        this->rf->writeRegister(svalue, regNumber, error);
        //regNumber is valid thus error should be false
+	    std::cout << error << "\n"; 
        assert(error == false);
        lvalue = this->rf->readRegister(regNumber, error);
        //lvalue should be the value just stored
