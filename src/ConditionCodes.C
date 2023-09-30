@@ -106,7 +106,7 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
      else
      {
       // Do we need to use clearBits here?
-      return;
+      codes = Tools::clearBits(codes, ccNum, ccNum);
      }
 
    }
