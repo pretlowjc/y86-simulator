@@ -29,6 +29,7 @@ Memory *Memory::getInstance()
 {
    if (memInstance == NULL)
    {
+	// is this POINTING at the address? unsure -- Michael Crespo
       memInstance = new Memory();
       return memInstance;
    }
@@ -51,8 +52,17 @@ Memory *Memory::getInstance()
  */
 uint64_t Memory::getLong(int32_t address, bool &imem_error)
 {
-   // Use Memory::size to check if an address is valid
-   return 0;
+	if (address % 8 == 0 && address < Memory::size){
+		   // Use Memory::size to check if an address is valid
+		   imem_error = false;
+		   return address; // This should be returning a 64 bit word? -- Michael Crespo
+
+
+	}
+	else {
+		imem_error = true;
+   		return 0;
+	}
 }
 
 /**
@@ -92,8 +102,16 @@ uint8_t Memory::getByte(int32_t address, bool &imem_error)
  */
 void Memory::putLong(uint64_t value, int32_t address, bool &imem_error)
 {
+	if (address % 0 == 0 && address < Memory::size){
+		address = value; // This is not right,  I think we need to use pointer notation
+		imem_error = false;
+
+	
    // Use Memory::size to check if an address is valid
-   return;
+   }
+   else {
+	imem_error = true;
+   }
 }
 
 /**
