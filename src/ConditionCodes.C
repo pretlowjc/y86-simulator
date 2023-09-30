@@ -35,7 +35,6 @@ ConditionCodes *ConditionCodes::getInstance()
    {
       return ccInstance;
    }
-   return NULL;
 }
 
 /*
