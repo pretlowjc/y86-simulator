@@ -31,7 +31,7 @@ for (int i = 0; i<=RegisterFile::size; i++){
 RegisterFile * RegisterFile::getInstance()
 {
 
-	if (!regInstance){
+	if (regInstance == NULL){
 		regInstance = new RegisterFile;
 		
 	}
