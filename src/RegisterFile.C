@@ -35,7 +35,10 @@ RegisterFile *RegisterFile::getInstance()
       regInstance = new RegisterFile;
       return regInstance;
    }
-   return regInstance;
+   else
+   {
+      return regInstance;
+   }
 }
 
 /**
@@ -51,12 +54,11 @@ RegisterFile *RegisterFile::getInstance()
 uint64_t RegisterFile::readRegister(int32_t regNumber, bool &error)
 {
 
-   if ((regNumber >= 0) && (regNumber <= RegisterFile::size))
+   if ((regNumber >= 0) && (regNumber < RegisterFile::size))
    {
       error = false;
       return reg[regNumber];
    }
-   // Use RegisterFile::size to determine whether regNumber is valid
    else
    {
       error = true;
@@ -76,12 +78,11 @@ uint64_t RegisterFile::readRegister(int32_t regNumber, bool &error)
 void RegisterFile::writeRegister(uint64_t value, int32_t regNumber,
                                  bool &error)
 {
-   if ((regNumber >= 0) && (regNumber <= RegisterFile::size))
+   if ((regNumber >= 0) && (regNumber < RegisterFile::size))
    {
       error = false;
-      value = reg[regNumber];
+      reg[regNumber] = value;
    }
-   // Use RegisterFile::size to determine whether regNumber is valid
    else
    {
       error = true;
