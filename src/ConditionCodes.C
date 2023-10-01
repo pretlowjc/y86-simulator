@@ -31,7 +31,10 @@ ConditionCodes *ConditionCodes::getInstance()
       ccInstance = new ConditionCodes();
       return ccInstance;
    }
-   return ccInstance;
+   else
+   {
+      return ccInstance;
+   }
 }
 
 /*
@@ -53,10 +56,12 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool &error)
    if (ccNum != OF && ccNum != SF && ccNum != ZF)
    {
       // ccNum is out of range, return true!
-      return true;
+      error = true;
+      return 0;
    }
    else
    {
+      error = false;
       return Tools::getBits(codes, ccNum, ccNum);
    }
 }
@@ -86,6 +91,7 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
    if (ccNum != OF && ccNum != SF && ccNum != ZF)
    {
       // ccNum is out of range, codes does not get modified. Simply return.
+      error = true;
       return;
    }
    else
@@ -93,8 +99,7 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
       // If value is true then setBits, if false clearBits?
       // We are modifying codes, thus codes must be give the value of setBits
       // or clear bits?
-
-     if (value == true)
+     if (value == 1)
      {
       codes = Tools::setBits(codes, ccNum, ccNum);
      }
@@ -102,7 +107,7 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
      {
       codes = Tools::clearBits(codes, ccNum, ccNum);
      }
-
+     error = false;
    }
 }
 
