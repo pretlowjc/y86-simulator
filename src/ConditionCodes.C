@@ -29,11 +29,9 @@ ConditionCodes *ConditionCodes::getInstance()
    if (ccInstance == NULL)
    {
       ccInstance = new ConditionCodes();
-   }
-   else
-   {
       return ccInstance;
    }
+   return ccInstance;
 }
 
 /*
