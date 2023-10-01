@@ -31,11 +31,7 @@ ConditionCodes *ConditionCodes::getInstance()
       ccInstance = new ConditionCodes();
       return ccInstance;
    }
-   else
-   {
-      return ccInstance;
-   }
-   return NULL;
+   return ccInstance;
 }
 
 /*
@@ -94,19 +90,17 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
    }
    else
    {
-      /*
-         - accepts a condition code number (OF, SF, ZF).
-         - accepts a value (T/F). 
-         - sets the condtion code it within the codes data member to that value (1/T, 0/F).
-      */
+      // If value is true then setBits, if false clearBits?
+      // We are modifying codes, thus codes must be give the value of setBits
+      // or clear bits?
+
      if (value == true)
      {
       codes = Tools::setBits(codes, ccNum, ccNum);
      }
      else
      {
-      // Do we need to use clearBits here?
-      return;
+      codes = Tools::clearBits(codes, ccNum, ccNum);
      }
 
    }

@@ -39,5 +39,3 @@ $(OBJD)/Tools.o : $(INC)/Tools.h
 
 clean: 
 	rm -f $(OBJS)
-
- 
