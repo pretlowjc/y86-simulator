@@ -93,6 +93,7 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
       // If value is true then setBits, if false clearBits?
       // We are modifying codes, thus codes must be give the value of setBits
       // or clear bits?
+
      if (value == true)
      {
       codes = Tools::setBits(codes, ccNum, ccNum);
