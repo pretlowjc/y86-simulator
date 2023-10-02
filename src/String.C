@@ -2,6 +2,7 @@
 #include <string>   //for std::string functions
 #include <string.h> //for c-string functions (strlen, strcpy, ..)
 #include "String.h"
+#include <assert.h>
 
 /*
  * String
@@ -29,6 +30,12 @@ String::String(std::string str)
 
    Set length to the size of the array.
    */
+   this->str = new char[str.length()];
+   for (u_int32_t i = 0; i < str.length(); i++)
+   {
+      this->str[i] = str[i];
+   }
+   this->length = str.length();
 }
 
 /*
@@ -45,7 +52,7 @@ char *String::get_cstr()
 
    That space needs to include space for a NULL.
 
-   Don't forget tot add the NULL.
+   Don't forget to add the NULL.
    */
 
    return NULL; // change this
