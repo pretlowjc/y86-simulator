@@ -54,8 +54,14 @@ char *String::get_cstr()
 
    Don't forget to add the NULL.
    */
+   this->str = new char[length + 1];
+   for (u_int32_t i = 0; length; i++)
+   {
+      this->str[i] = str[i];
+   }
+   str[length] = '\0'; // Add null to end.
 
-   return NULL; // change this
+   return str;
 }
 
 /*
@@ -70,8 +76,13 @@ std::string String::get_stdstr()
    You need to declare std::string and append the characters
    from your str array to it.
    */
+   std::string stdstr = "";
+   for (int i = 0; i < String::length; i++)
+   {
 
-   return 0; // change this
+      stdstr = stdstr + str[i];
+   }
+   return stdstr; // change this
 }
 
 /*
@@ -82,7 +93,7 @@ std::string String::get_stdstr()
 int32_t String::get_length()
 {
    // TODO
-   return 0;
+   return length;
 }
 
 /*
