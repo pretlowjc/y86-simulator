@@ -54,14 +54,11 @@ char *String::get_cstr()
 
    Don't forget to add the NULL.
    */
-   this->str = new char[length + 1];
-   for (u_int32_t i = 0; length; i++)
-   {
-      this->str[i] = str[i];
-   }
-   str[length] = '\0'; // Add null to end.
+   char *cstr = new char[String::length + 1];
+   strncpy(cstr, String::str, String::length);
+   strncat(cstr, "\0", 1);
 
-   return str;
+   return cstr;
 }
 
 /*
@@ -79,7 +76,6 @@ std::string String::get_stdstr()
    std::string stdstr = "";
    for (int i = 0; i < String::length; i++)
    {
-
       stdstr = stdstr + str[i];
    }
    return stdstr; // change this
