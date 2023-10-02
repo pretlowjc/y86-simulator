@@ -14,9 +14,18 @@
  */
 String::String(std::string str)
 {
-   //Prevent calling constructor with NULL string
-   assert(str.length() > 0);
+	// std::cout << str.length();
 
+   //Prevent calling constructor with NULL string
+	this -> str = new char [str.length()];
+	for (u_int32_t i = 0; i < str.length(); i++){
+		this -> str[i] = str[i];
+	}
+	this -> length = str.length();
+	// std::cout << str.length();
+	
+	
+	
    //TODO
    //Dynamically allocate an array of chars just large enough to 
    //hold the chars of the std::string.
@@ -37,9 +46,13 @@ char * String::get_cstr()
    //TODO
    //You need to dynamically allocate space (array of char) for the
    //c-string that you are building
+	char *cstr = new char[String::length + 1];
+	strncpy(cstr, String::str, String::length);
+	strncat(cstr,"\0", 1);
+
    //That space needs to include space for a NULL
    //Don't forget to add the NULL.
-   return NULL; //change this
+   return cstr; //change this
 }
 
 /*
