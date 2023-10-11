@@ -8,7 +8,7 @@ CFLAGS = -g -c -Wall -std=c++11 -I $(INC)
 # 1) need a macro for the .o files corresponding to the .C 
 #    files in this directory (note they will be stored in the ../obj
 #    directory: OBJS = ....
-OBJS = $(OBJD)/ConditionCodes.o  $(OBJD)/Memory.o $(OBJD)/RegisterFile.o  $(OBJD)/Tools.o
+OBJS = $(OBJD)/ConditionCodes.o  $(OBJD)/Memory.o $(OBJD)/RegisterFile.o  $(OBJD)/Tools.o $(OBJD)/Loader.o $(OBJD)/String.o $(OBJD)/yess.o 
 
 #rule to match .C with object in another directory
 $(OBJD)/%.o: %.C 
@@ -24,7 +24,15 @@ $(OBJD)/%.o: %.C
 #    No executable is created. We need it just to be able to compile 
 #    all of the .C files with one make command.
 
+yess:
+	make all
+	$(CC) $(OBJS)  -o $(BIN)/yess
+	
+
 all: $(OBJS)
+
+
+
 
 
 # 3) need a .o target for each .C
@@ -33,6 +41,10 @@ $(OBJD)/ConditionCodes.o : $(INC)/ConditionCodes.h
 $(OBJD)/Memory.o : $(INC)/Memory.h
 $(OBJD)/RegisterFile.o : $(INC)/RegisterFile.h
 $(OBJD)/Tools.o : $(INC)/Tools.h
+$(OBJD)/Loader.o : $(INC)/Loader.h
+$(OBJD)/String.o : $(INC)/String.h
+
+
 
 # 4) need a clean target to delete the .o files corresponding to
 #    the .C files in this directory from the ../obj directory
