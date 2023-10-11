@@ -207,6 +207,19 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
 bool String::isChar(char what, int32_t idx, bool &error)
 {
    // TODO
+   if (idx < 0 || badIndex(idx))
+   {
+      error = true;
+      return false;
+   }
+   error = false;
+   for (int32_t i = idx; i < length; i++)
+   {
+      if (str[i] == what)
+      {
+         return true; // case 2
+      }
+   }
    return false;
 }
 
@@ -230,6 +243,21 @@ bool String::isChar(char what, int32_t idx, bool &error)
 bool String::isHex(int32_t startIdx, int len, bool &error)
 {
    // TODO
+   int32_t endIdx = startIdx + len - 1;
+
+   if (len < 0 || badIndex(startIdx) || badIndex(endIdx))
+   {
+      error = true;
+      return false;
+   }
+   error = false;
+   for (int32_t i = startIdx; i <= endIdx; ++i)
+   {
+      if ((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F'))
+      {
+         return true; // case 2
+      }
+   }
    return false;
 }
 
@@ -250,6 +278,31 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
 bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
 {
    // TODO
+   int32_t endIdx = startIdx + length - 1;
+   if (length < 0 || badIndex(startIdx) || badIndex(endIdx))
+   {
+      error = true;
+      return false; // case 1.
+   }
+   error = false;
+   for (int32_t i = 0; i <= endIdx; ++i)
+   {
+      for (int32_t j = 0; j <= endIdx; ++j)
+      {
+         if (subStr[j] != str[i])
+         {
+            return false;
+         }
+      }
+   }
+   // Try and see if this for loop would work instead of the nested for loop.
+   // for (int32_t i = 0; i <= endIdx; ++i)
+   // {
+   //    if (subStr[i] != str[startIdx + i])
+   //    {
+   //       return false;
+   //    }
+   // }
    return false;
 }
 
@@ -267,9 +320,27 @@ bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
  * 3) indices are valid and subStr is not in str array: set
  *    error to false and return false
  */
-bool String::isSubString(std::string subStr, int32_t startIdx,
-                         bool &error)
+bool String::isSubString(std::string subStr, int32_t startIdx, bool &error)
 {
+   // HOW DO THESE TWO METHODS DIFFER??
+
    // TODO
+   int32_t endIdx = startIdx + length - 1;
+   if (length < 0 || badIndex(startIdx) || badIndex(endIdx))
+   {
+      error = true;
+      return false; // case 1.
+   }
+   error = false;
+   for (int32_t i = 0; i <= endIdx; ++i)
+   {
+      for (int32_t j = 0; j <= endIdx; ++j)
+      {
+         if (subStr[j] != str[i])
+         {
+            return false;
+         }
+      }
+   }
    return false;
 }
