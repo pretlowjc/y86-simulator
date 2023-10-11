@@ -89,7 +89,7 @@ std::string String::get_stdstr()
 int32_t String::get_length()
 {
    // TODO
-   return length;
+   return String::length;
 }
 
 /*
@@ -101,6 +101,10 @@ int32_t String::get_length()
 bool String::badIndex(int32_t idx)
 {
    // TODO
+   if (idx < 0 || idx >= length)
+   {
+      return true;
+   }
    return false;
 }
 
@@ -132,8 +136,22 @@ bool String::isRepeatingChar(char what, int32_t startIdx,
    Use your badIndex method to check if the starting and ending indices
    are valid.
    */
+   int32_t endIdx = startIdx + len - 1;
 
-   return false;
+   if (len < 0 || badIndex(startIdx) || badIndex(endIdx))
+   {
+      error = true;
+      return false; // case 1.
+   }
+   error = false;
+   for (int32_t i = startIdx; i <= endIdx; ++i)
+   {
+      if (str[i] != what)
+      {
+         return false; // case 2
+      }
+   }
+   return true; // case 3
 }
 
 /*
