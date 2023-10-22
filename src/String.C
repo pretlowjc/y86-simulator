@@ -4,6 +4,9 @@
 #include "String.h"
 #include <assert.h>
 
+#include <iostream>
+using namespace std;
+
 /*
  * String
  *
@@ -191,8 +194,45 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
    Second time through loop: result = 0x2a
    Third time through loop: result = 0x2af
    */
+   error = false; // Initialize error flag to false
 
-   return 0;
+   // Check for invalid indices using the 'badIndex' method (Assuming it exists)
+   if (badIndex(startIdx) || len <= 0 || badIndex(startIdx + len - 1))
+   {
+      error = true; // Set error flag to true for invalid indices
+      return 0;
+   }
+
+   uint32_t result = 0; // Initialize the result to 0
+
+   for (int i = startIdx; i < startIdx + len; i++)
+   {
+      char c = str[i]; // Access the character from your array
+
+      if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+      {
+         // If the character is a valid hex digit, convert and add it to the result
+         if (c >= '0' && c <= '9')
+         {
+            result = (result << 4) + (c - '0');
+         }
+         else if (c >= 'a' && c <= 'f')
+         {
+            result = (result << 4) + (c - 'a' + 10);
+         }
+         else if (c >= 'A' && c <= 'F')
+         {
+            result = (result << 4) + (c - 'A' + 10);
+         }
+      }
+      else
+      {
+         error = true; // Set error flag to true for invalid hex characters
+         return 0;
+      }
+   }
+
+   return result;
 }
 
 /*
@@ -250,15 +290,19 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
       error = true;
       return false;
    }
+
    error = false;
+
    for (int32_t i = startIdx; i <= endIdx; ++i)
    {
-      if ((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F'))
+      if (!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F')))
       {
-         return true; // case 2
+         error = false;
+         return false; // case 2
       }
    }
-   return false;
+
+   return true;
 }
 
 /*
@@ -278,32 +322,34 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
 bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
 {
    // TODO
-   int32_t endIdx = startIdx + length - 1;
-   if (length < 0 || badIndex(startIdx) || badIndex(endIdx))
+   if (length < 0 || badIndex(startIdx))
    {
       error = true;
       return false; // case 1.
    }
+
    error = false;
-   for (int32_t i = 0; i <= endIdx; ++i)
+
+   const int subStrLen = strlen(subStr);
+   const int strLen = strlen(str);
+
+   int32_t endIdx = startIdx + subStrLen - 1;
+
+   if (badIndex(endIdx) || endIdx >= strLen)
    {
-      for (int32_t j = 0; j <= endIdx; ++j)
+      error = true;
+      return false;
+   }
+
+   for (int i = 0; i < subStrLen; i++)
+   {
+      if (str[startIdx + i] != subStr[i])
       {
-         if (subStr[j] != str[i])
-         {
-            return false;
-         }
+         return false;
       }
    }
-   // Try and see if this for loop would work instead of the nested for loop.
-   // for (int32_t i = 0; i <= endIdx; ++i)
-   // {
-   //    if (subStr[i] != str[startIdx + i])
-   //    {
-   //       return false;
-   //    }
-   // }
-   return false;
+
+   return true;
 }
 
 /*
@@ -325,22 +371,32 @@ bool String::isSubString(std::string subStr, int32_t startIdx, bool &error)
    // HOW DO THESE TWO METHODS DIFFER??
 
    // TODO
-   int32_t endIdx = startIdx + length - 1;
-   if (length < 0 || badIndex(startIdx) || badIndex(endIdx))
+   if (length < 0 || badIndex(startIdx))
    {
       error = true;
       return false; // case 1.
    }
+
    error = false;
-   for (int32_t i = 0; i <= endIdx; ++i)
+
+   const int subStrLen = subStr.length();
+   const int strLen = strlen(str);
+
+   int32_t endIdx = startIdx + subStrLen - 1;
+
+   if (startIdx < 0 || endIdx >= strLen)
    {
-      for (int32_t j = 0; j <= endIdx; ++j)
+      error = true;
+      return false;
+   }
+
+   for (int i = 0; i < subStrLen; i++)
+   {
+      if (str[startIdx + i] != subStr[i])
       {
-         if (subStr[j] != str[i])
-         {
-            return false;
-         }
+         return false;
       }
    }
-   return false;
+
+   return true;
 }
