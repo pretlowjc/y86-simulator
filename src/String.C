@@ -4,6 +4,9 @@
 #include "String.h"
 #include <assert.h>
 
+#include <iostream>
+using namespace std;
+
 /*
  * String
  *
@@ -191,8 +194,45 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
    Second time through loop: result = 0x2a
    Third time through loop: result = 0x2af
    */
+   error = false; // Initialize error flag to false
 
-   return 0;
+   // Check for invalid indices using the 'badIndex' method (Assuming it exists)
+   if (badIndex(startIdx) || len <= 0 || badIndex(startIdx + len - 1))
+   {
+      error = true; // Set error flag to true for invalid indices
+      return 0;
+   }
+
+   uint32_t result = 0; // Initialize the result to 0
+
+   for (int i = startIdx; i < startIdx + len; i++)
+   {
+      char c = str[i]; // Access the character from your array
+
+      if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+      {
+         // If the character is a valid hex digit, convert and add it to the result
+         if (c >= '0' && c <= '9')
+         {
+            result = (result << 4) + (c - '0');
+         }
+         else if (c >= 'a' && c <= 'f')
+         {
+            result = (result << 4) + (c - 'a' + 10);
+         }
+         else if (c >= 'A' && c <= 'F')
+         {
+            result = (result << 4) + (c - 'A' + 10);
+         }
+      }
+      else
+      {
+         error = true; // Set error flag to true for invalid hex characters
+         return 0;
+      }
+   }
+
+   return result;
 }
 
 /*
@@ -207,6 +247,19 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
 bool String::isChar(char what, int32_t idx, bool &error)
 {
    // TODO
+   if (idx < 0 || badIndex(idx))
+   {
+      error = true;
+      return false;
+   }
+   error = false;
+   for (int32_t i = idx; i < length; i++)
+   {
+      if (str[i] == what)
+      {
+         return true; // case 2
+      }
+   }
    return false;
 }
 
@@ -230,7 +283,26 @@ bool String::isChar(char what, int32_t idx, bool &error)
 bool String::isHex(int32_t startIdx, int len, bool &error)
 {
    // TODO
-   return false;
+   int32_t endIdx = startIdx + len - 1;
+
+   if (len < 0 || badIndex(startIdx) || badIndex(endIdx))
+   {
+      error = true;
+      return false;
+   }
+
+   error = false;
+
+   for (int32_t i = startIdx; i <= endIdx; ++i)
+   {
+      if (!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F')))
+      {
+         error = false;
+         return false; // case 2
+      }
+   }
+
+   return true;
 }
 
 /*
@@ -250,7 +322,34 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
 bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
 {
    // TODO
-   return false;
+   if (length < 0 || badIndex(startIdx))
+   {
+      error = true;
+      return false; // case 1.
+   }
+
+   error = false;
+
+   const int subStrLen = strlen(subStr);
+   const int strLen = strlen(str);
+
+   int32_t endIdx = startIdx + subStrLen - 1;
+
+   if (badIndex(endIdx) || endIdx >= strLen)
+   {
+      error = true;
+      return false;
+   }
+
+   for (int i = 0; i < subStrLen; i++)
+   {
+      if (str[startIdx + i] != subStr[i])
+      {
+         return false;
+      }
+   }
+
+   return true;
 }
 
 /*
@@ -267,9 +366,37 @@ bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
  * 3) indices are valid and subStr is not in str array: set
  *    error to false and return false
  */
-bool String::isSubString(std::string subStr, int32_t startIdx,
-                         bool &error)
+bool String::isSubString(std::string subStr, int32_t startIdx, bool &error)
 {
+   // HOW DO THESE TWO METHODS DIFFER??
+
    // TODO
-   return false;
+   if (length < 0 || badIndex(startIdx))
+   {
+      error = true;
+      return false; // case 1.
+   }
+
+   error = false;
+
+   const int subStrLen = subStr.length();
+   const int strLen = strlen(str);
+
+   int32_t endIdx = startIdx + subStrLen - 1;
+
+   if (startIdx < 0 || endIdx >= strLen)
+   {
+      error = true;
+      return false;
+   }
+
+   for (int i = 0; i < subStrLen; i++)
+   {
+      if (str[startIdx + i] != subStr[i])
+      {
+         return false;
+      }
+   }
+
+   return true;
 }
