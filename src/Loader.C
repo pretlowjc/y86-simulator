@@ -71,15 +71,37 @@ bool Loader::openFile()
    //If the user didn't supply a command line argument (inputFile is NULL)
    //then print the Loader::usage error message and return false
    //(Note: Loader::usage is a static const defined in Loader.h)
+   if (inputFile == NULL) 
+   {
+      // print the Loader::usage error message.
+      return false;
+   }
 
    //If the filename is badly formed (needs to be at least 4 characters
    //long and end with .yo) then print the Loader::badfile error message 
    //and return false
+   int32_t filenameLength = inputFile->get_length();
+   bool error;
+   if ((filenameLength < 4) && (inputFile->isSubString(".yo", 0, error) == false))
+   {
+      // print the Loader::badfile error message.
+      // std::cout << printErrMsg(?, ?, ?) << std::endl;
+      return false;
+   }
    
    //Open the file using an std::ifstream open
    //If the file can't be opened then print the Loader::openerr message 
    //and return false
 
+   // std::ifstream ??;
+   /*
+   if (no open sesame)
+   {
+      // print the Loader::openerr message.
+      return false;
+   }
+   */
+  
    return true;  //file name is good and file open succeeded
 }
 
