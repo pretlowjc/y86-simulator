@@ -155,3 +155,10 @@ bool Loader::load()
 // Add helper methods definitions here and the declarations to Loader.h
 // In your code, be sure to use the static const variables defined in
 // Loader.h to grab specific fields from the input line.
+
+/*
+  Suggested Helper Methods:
+  badComment
+  badData
+  loadMem ...maybe?
+*/
