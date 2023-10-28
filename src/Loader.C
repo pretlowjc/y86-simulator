@@ -73,7 +73,6 @@ bool Loader::openFile()
    // If the filename is badly formed (needs to be at least 4 characters
    // long and end with .yo) then print the Loader::badfile error message
    // and return false
-   int32_t filenameLength = inputFile->get_length();
    bool error;
 
    // If the user didn't supply a command line argument (inputFile is NULL)
@@ -81,28 +80,12 @@ bool Loader::openFile()
    //(Note: Loader::usage is a static const defined in Loader.h)
    if (inputFile == NULL)
    {
-      /*
-      print the Loader::usage error message.
-
-      params for printErrMsg(int32_t which, int32_t lineNumber, String *line)
-      which:  Loader::usage
-      lineNumber: If lineNumber is not -1 then it also prints what line the error occured.
-      *line: inputFile?
-
-      */
       printErrMsg(Loader::usage, 1, inputFile);
       return false;
    }
-   else if ((filenameLength < 4) && (inputFile->isSubString(".yo", 0, error) == false))
+   int32_t filenameLength = inputFile->get_length();
+   if ((filenameLength < 4) || (inputFile->isSubString(".yo", (inputFile->get_length() - 3), error) == false))
    {
-      /*
-      print the Loader::badfile error message.
-
-      params for printErrMsg(int32_t which, int32_t lineNumber, String *line)
-      which:  Loader::badfile
-      lineNumber: If lineNumber is not -1 then it also prints what line the error occured.
-      *line: inputFile?
-      */
       printErrMsg(Loader::badfile, -1, inputFile);
       return false;
    }
@@ -110,11 +93,9 @@ bool Loader::openFile()
    // Open the file using an std::ifstream open
    // If the file can't be opened then print the Loader::openerr message
    // and return false
+   inf.open(inputFile->get_stdstr());
 
-   std::ifstream file;
-   file.open(inputFile->get_stdstr());
-
-   if (!file.is_open())
+   if (!inf.is_open())
    {
       // print the Loader::openerr message.
       printErrMsg(Loader::openerr, -1, inputFile);
