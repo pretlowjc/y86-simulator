@@ -123,8 +123,7 @@ bool Loader::load()
     	int32_t addressEnd = Loader::addrend;
         int32_t dataBegin = Loader::databegin;
 
-   if (!openFile())
-      return false;
+   if (!openFile()) return false;
 
    std::string line;
    int lineNumber = 1; // needed if an error is found
@@ -136,30 +135,40 @@ bool Loader::load()
       String inputLine(line);
     //   // TODO
 
-	//   if(Loader::badData(line) == true){
-	// 	printErrMsg(Loader::baddata, lineNumber, &inputLine);
-	//   }
-    //   if(Loader::badComment(line) == true){
-	// 	printErrMsg(Loader::badcomment, lineNumber, &inputLine);
-	//   }
-	   bool error = false;
-	  
-	  uint64_t data = 0;
-	  
-	//   if(Loader::isaHex(line,addrbegin,addrend,error)){
-		uint32_t address = inputLine.convert2Hex(addressBegin, 4, error);
-		data = inputLine.convert2Hex(dataBegin, 8, error);
-		for (int i = 0; i < 8; i++) {
-            uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);
-            mem->putByte(byte, address + i, error);
-         }
-		
-		
-	//   else
-	//   	printErrMsg(Loader::baddata,lineNumber, &inputLine);
-		
 	
+	bool error = false;
+	uint64_t data = 0;
 
+	  
+	//    if(!Loader::isaHex(line,addrbegin,addrend,error)){ useless check I think
+			
+	//    }
+		// I dont know if im suppose to use inputLine or line.
+		if(!Loader::badData(inputLine)){
+			printErrMsg(Loader::baddata,lineNumber,&inputLine); // unsure on &inputLine
+		}
+			else if (!Loader::badComment(inputLine)){
+				printErrMsg(Loader::badcomment,lineNumber, &inputLine); // unsure on &input
+			}
+		
+		else{
+		// memory address check here last check needed we need to check for that next address 
+		//line is less than the current, also need to check if address is out of bounds.
+		uint32_t address = inputLine.convert2Hex(addressBegin, addressEnd, error); // should be address 0xhhh
+		data = inputLine.convert2Hex(dataBegin, inputLine.get_length(), error); // should be data up until end of line.
+		for (int i = 0; i < 8; i++) {				// loop could be wrong?
+            uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);      
+            mem->putByte(byte, address + i, error);   // nothing writing to my sdump
+         }
+		 lineNumber++;
+		}
+	// moved loader hints down
+      
+   }
+   return true; // load succeeded
+}
+
+	//COMMENTS
       // Note: there are two kinds of records: data and comment
       //       A data record begins with a "0x"
 	  
@@ -178,10 +187,6 @@ bool Loader::load()
       // Break the work up into multiple single purpose methods
 
       // increment the line number for next iteration
-      lineNumber++;
-   }
-   return true; // load succeeded
-}
 
 // Add helper methods definitions here and the declarations to Loader.h
 // In your code, be sure to use the static const variables defined in
@@ -210,9 +215,22 @@ bool Loader::badComment(String inputLine){
 
 	bool Loader::badData(String inputLine){
 		bool error = false;
-		if (!inputLine.isSubString("0x", Loader::addrbegin, error)) {
-        return true; // Bad data record
+		if (inputLine.isChar('0' ,0, error)) {
+			if(inputLine.isChar('x', 1, error)){
+				if(inputLine.isHex(2,4,error)){
+					if(inputLine.isChar(':', 5, error)){
+						if(inputLine.isChar(' ',6,error)){
+							return true; // good data record following a "0xhhh: " format
+						}
+
+					}
+				}
+
+			}
     }
+
+
+
 
 		return false;
 		
