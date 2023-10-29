@@ -5,6 +5,7 @@
 #include "String.h"
 #include "Loader.h"
 
+
 /*
  * Loader
  * Initializes the private data members
@@ -118,6 +119,10 @@ bool Loader::openFile()
  */
 bool Loader::load()
 {
+		int32_t addressBegin = Loader::addrbegin;
+    	int32_t addressEnd = Loader::addrend;
+        int32_t dataBegin = Loader::databegin;
+
    if (!openFile())
       return false;
 
@@ -129,10 +134,36 @@ bool Loader::load()
       // Now, all accesses to the input line MUST be via your
       // String class methods
       String inputLine(line);
-      // TODO
+    //   // TODO
+
+	//   if(Loader::badData(line) == true){
+	// 	printErrMsg(Loader::baddata, lineNumber, &inputLine);
+	//   }
+    //   if(Loader::badComment(line) == true){
+	// 	printErrMsg(Loader::badcomment, lineNumber, &inputLine);
+	//   }
+	   bool error = false;
+	  
+	  uint64_t data = 0;
+	  
+	//   if(Loader::isaHex(line,addrbegin,addrend,error)){
+		uint32_t address = inputLine.convert2Hex(addressBegin, 4, error);
+		data = inputLine.convert2Hex(dataBegin, 8, error);
+		for (int i = 0; i < 8; i++) {
+            uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);
+            mem->putByte(byte, address + i, error);
+         }
+		
+		
+	//   else
+	//   	printErrMsg(Loader::baddata,lineNumber, &inputLine);
+		
+	
 
       // Note: there are two kinds of records: data and comment
       //       A data record begins with a "0x"
+	  
+
       //
       // If the line is a data record with errors
       // then print the Loader::baddata error message and return false
@@ -162,3 +193,45 @@ bool Loader::load()
   badData
   loadMem ...maybe?
 */
+
+bool Loader::badComment(String inputLine){
+	
+	bool hasError = false;
+	if (inputLine.isSubString(" ", 0, hasError) == true){
+		if(inputLine.isChar('|', Loader::comment, hasError) == false){
+			return true;
+		}
+		
+	}
+
+
+	return false;
+}
+
+	bool Loader::badData(String inputLine){
+		bool error = false;
+		if (!inputLine.isSubString("0x", Loader::addrbegin, error)) {
+        return true; // Bad data record
+    }
+
+		return false;
+		
+
+	
+
+	}
+
+bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
+	if (inputLine.convert2Hex(sIdx, len, error) == false){
+		return false;
+	}
+
+	
+
+
+	return true;
+
+
+	
+}
+

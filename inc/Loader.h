@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "Memory.h"
 #include "String.h"
+#include <fstream>
 
 #ifndef LOADER_H
 #define LOADER_H
@@ -35,6 +36,9 @@ class Loader
 
       //TODO
       //add declarations for other methods used by your loader
+	  bool badComment(String);
+	  bool badData(String);
+	  bool isaHex(String, int32_t, int32_t, bool &);
       
    public:
       //methods called outside of class
