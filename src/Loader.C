@@ -143,24 +143,24 @@ bool Loader::load()
 	//    if(!Loader::isaHex(line,addrbegin,addrend,error)){ useless check I think
 			
 	//    }
-		// I dont know if im suppose to use inputLine or line.
 		if(!Loader::badData(inputLine)){
-			printErrMsg(Loader::baddata,lineNumber,&inputLine); // unsure on &inputLine
+			printErrMsg(Loader::baddata,lineNumber,&inputLine); 
 		}
 			else if (!Loader::badComment(inputLine)){
-				printErrMsg(Loader::badcomment,lineNumber, &inputLine); // unsure on &input
+				printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
 			}
 		
 		else{
 		// memory address check here last check needed we need to check for that next address 
 		//line is less than the current, also need to check if address is out of bounds.
 		uint32_t address = inputLine.convert2Hex(addressBegin, addressEnd, error); // should be address 0xhhh
-		data = inputLine.convert2Hex(dataBegin, inputLine.get_length(), error); // should be data up until end of line.
+		data = inputLine.convert2Hex(dataBegin, 7, error); // should be data up until end of line.
 		for (int i = 0; i < 8; i++) {				// loop could be wrong?
             uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);      
             mem->putByte(byte, address + i, error);   // nothing writing to my sdump
          }
 		 lineNumber++;
+		 address++;
 		}
 	// moved loader hints down
       
