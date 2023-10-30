@@ -4,6 +4,7 @@
 #include "Memory.h"
 #include "String.h"
 #include "Loader.h"
+#include "Tools.h"
 
 
 /*
@@ -119,9 +120,7 @@ bool Loader::openFile()
  */
 bool Loader::load()
 {
-		int32_t addressBegin = Loader::addrbegin;
-    	int32_t addressEnd = Loader::addrend;
-        int32_t dataBegin = Loader::databegin;
+		
 
    if (!openFile()) return false;
 
@@ -137,31 +136,42 @@ bool Loader::load()
 
 	
 	bool error = false;
-	uint64_t data = 0;
 
-	  
-	//    if(!Loader::isaHex(line,addrbegin,addrend,error)){ useless check I think
-			
-	//    }
-		if(!Loader::badData(inputLine)){
-			printErrMsg(Loader::baddata,lineNumber,&inputLine); 
-		}
-			else if (!Loader::badComment(inputLine)){
-				printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
-			}
-		
-		else{
+		 if((inputLine.isChar('0', 0, error) && inputLine.isChar('x',1,error)) == true){
+		 if(Loader::badData(inputLine)){
+
+			printErrMsg(Loader::baddata,lineNumber,&inputLine);
+
+		 	lineNumber++;
+		 }
+		  else{
 		// memory address check here last check needed we need to check for that next address 
 		//line is less than the current, also need to check if address is out of bounds.
-		uint32_t address = inputLine.convert2Hex(addressBegin, addressEnd, error); // should be address 0xhhh
-		data = inputLine.convert2Hex(dataBegin, 7, error); // should be data up until end of line.
-		for (int i = 0; i < 8; i++) {				// loop could be wrong?
-            uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);      
-            mem->putByte(byte, address + i, error);   // nothing writing to my sdump
+		uint32_t address = inputLine.convert2Hex(addrbegin, addrend-addrbegin + 1, error); //  should be address 0xhhh
+		
+		int i = databegin;
+		while (inputLine.isHex(i,2,error)){ // should be data up until end of line.
+		uint64_t byte = inputLine.convert2Hex(i,2, error);
+						// loop could be wrong?
+            // uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);      
+            mem->putByte(byte, address, error);
+			lastAddress = address;
+			address++;
+			i+=2;
+
          }
 		 lineNumber++;
-		 address++;
+		 
 		}
+
+		 }
+		 else if (Loader::badComment(inputLine)){
+				printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
+		 		lineNumber++;
+		 	}
+	
+	lineNumber++;
+		
 	// moved loader hints down
       
    }
@@ -202,37 +212,30 @@ bool Loader::load()
 bool Loader::badComment(String inputLine){
 	
 	bool hasError = false;
-	if (inputLine.isSubString(" ", 0, hasError) == true){
-		if(inputLine.isChar('|', Loader::comment, hasError) == false){
-			return true;
-		}
+	// loop  until commentIndex u meet a comment pipe // isChar at index 27
+	// if (inputLine.isSubString("                          |", 0, hasError) == true){
+	// return false;
 		
-	}
+	// }
+	if (!inputLine.isChar('|', comment, hasError)) return true;
 
 
-	return false;
+	return true;
 }
 
 	bool Loader::badData(String inputLine){
 		bool error = false;
-		if (inputLine.isChar('0' ,0, error)) {
-			if(inputLine.isChar('x', 1, error)){
-				if(inputLine.isHex(2,4,error)){
-					if(inputLine.isChar(':', 5, error)){
-						if(inputLine.isChar(' ',6,error)){
-							return true; // good data record following a "0xhhh: " format
-						}
-
-					}
-				}
-
-			}
-    }
+		// checking for spaces, if a space rest of spaces.
+		if (!inputLine.isSubString("0x", 0, error)) return true;
+		if (!inputLine.isHex(addrbegin,addrend - 1,error)) return true;
+		if (!inputLine.isChar(':',addrend + 1, error)) return true;
+		if (!inputLine.isChar(' ', addrend + 2, error)) return true;
+		if (!inputLine.isHex(databegin,comment - 1, error)) return true;
+		//
+		if (!inputLine.isChar(' ', comment-1, error)) return true;
 
 
-
-
-		return false;
+		 return false;
 		
 
 	
