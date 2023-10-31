@@ -137,16 +137,22 @@ bool Loader::load()
 	
 	bool error = false;
 
-		 if((inputLine.isChar('0', 0, error) && inputLine.isChar('x',1,error)) == true){
-		 if(Loader::badData(inputLine)){
+		
+		 if(Loader::badData(inputLine) && inputLine.isSubString("0x", 0, error)){
 
-			printErrMsg(Loader::baddata,lineNumber,&inputLine);
+			return printErrMsg(Loader::baddata,lineNumber,&inputLine);
 
-		 	lineNumber++;
+		 	
 		 }
-		  else{
+		  
 		// memory address check here last check needed we need to check for that next address 
 		//line is less than the current, also need to check if address is out of bounds.
+		
+		 	if (Loader::badComment(inputLine) && inputLine.isSubString("0x", 0, error)){
+				return printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
+		 		
+		 	}
+
 		uint32_t address = inputLine.convert2Hex(addrbegin, addrend-addrbegin + 1, error); //  should be address 0xhhh
 		
 		int i = databegin;
@@ -154,27 +160,19 @@ bool Loader::load()
 		uint64_t byte = inputLine.convert2Hex(i,2, error);
 						// loop could be wrong?
             // uint8_t byte = static_cast<uint8_t>((data >> (i * 8)) & 0xFF);      
-            mem->putByte(byte, address, error);
-			lastAddress = address;
-			address++;
-			i+=2;
+        	 mem->putByte(byte, address, error);
+			 lastAddress = address;
+			 address++;
+			 i+=2;
 
          }
-		 lineNumber++;
-		 
-		}
-
-		 }
-		 else if (Loader::badComment(inputLine)){
-				printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
-		 		lineNumber++;
-		 	}
 	
-	lineNumber++;
+	
 		
 	// moved loader hints down
-      
+      lineNumber++;
    }
+
    return true; // load succeeded
 }
 
@@ -217,27 +215,36 @@ bool Loader::badComment(String inputLine){
 	// return false;
 		
 	// }
-	if (!inputLine.isChar('|', comment, hasError)) return true;
+	return (!inputLine.isChar('|', comment, hasError) || !inputLine.isSubString("                           ",0,hasError));
 
 
-	return true;
 }
 
 	bool Loader::badData(String inputLine){
 		bool error = false;
+		// to fix memory error, I need to loop through input line, find spaces which I use in addr check  // to ensure you get every position and not go out of bounds)
+		  //length of data
+		 int i = databegin; while(!inputLine.isChar(' ', i, error))
+		 {
+			i+2;
+		} 	i--;
+		// 
+		
+		int l = (databegin-i)/2;
 		// checking for spaces, if a space rest of spaces.
-		if (!inputLine.isSubString("0x", 0, error)) return true;
-		if (!inputLine.isHex(addrbegin,addrend - 1,error)) return true;
-		if (!inputLine.isChar(':',addrend + 1, error)) return true;
+		// if (!inputLine.isSubString("0x", 0, error)) return true;
+		if (!inputLine.isHex(addrbegin,addrend-addrbegin + 1,error)) return true;
+		if (!inputLine.isChar(':',5, error)) return true;
 		if (!inputLine.isChar(' ', addrend + 2, error)) return true;
 		if (!inputLine.isHex(databegin,comment - 1, error)) return true;
+		if (i > databegin && inputLine.isHex(databegin,i,error)) return true;
 		//
 		if (!inputLine.isChar(' ', comment-1, error)) return true;
 
-
+		// check the memory location checks oxfff end memory addr < lastAddr + 1 || addr < 0xfff
 		 return false;
 		
-
+	
 	
 
 	}
