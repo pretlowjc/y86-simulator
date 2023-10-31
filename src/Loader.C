@@ -155,18 +155,19 @@ bool Loader::load()
       }
       // Otherwise, load any data on the line into
       // memory
-      // uint32_t address = inputLine.convert2Hex(addrbegin, addrend - addrbegin + 1, error); //  should be address 0xhhh
-      // int i = databegin;
-      // while (inputLine.isHex(i, 2, error))
-      // { // should be data up until end of line.
-      //    uint64_t byte = inputLine.convert2Hex(i, 2, error);
-      //    mem->putByte(byte, address, error);
-      //    lastAddress = address;
-      //    address++;
-      //    i += 2;
-      // }
-      // lineNumber++;
-      if (!badData(inputLine) && !badComment(inputLine))
+      uint32_t address = inputLine.convert2Hex(addrbegin, addrend - addrbegin + 1, error); //  should be address 0xhhh
+      int i = databegin;
+      while (inputLine.isHex(i, 2, error))
+      { // should be data up until end of line.
+         uint64_t byte = inputLine.convert2Hex(i, 2, error);
+         mem->putByte(byte, address, error);
+         lastAddress = address;
+         address++;
+         i += 2;
+      }
+      lineNumber++;
+
+      // if (!badData(inputLine) && !badComment(inputLine))
    }
    return true; // load succeeded
 }
