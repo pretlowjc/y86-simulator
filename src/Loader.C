@@ -138,7 +138,7 @@ bool error = false;
 	
 
 		
-		 if(badData(inputLine) && inputLine.isSubString((const char *)"0x", 0, error)){
+		 if(inputLine.isSubString((const char *)"0x", 0, error) && badData(inputLine)){
 			
 			return printErrMsg(Loader::baddata,lineNumber,&inputLine);
 
@@ -149,11 +149,11 @@ bool error = false;
 		//line is less than the current, also need to check if address is out of bounds.
 		
 		
-			else if (badComment(inputLine) && inputLine.isSubString((const char *)"0x", 0, error)){   
+			else if (!inputLine.isSubString((const char *)"0x", 0, error) && badComment(inputLine)){   
 				return printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
 		 		
 		 	}
-		else {
+		
 
 		uint32_t address = inputLine.convert2Hex(addrbegin, addrend-addrbegin + 1, error); //  should be address 0xhhh
 		
@@ -170,7 +170,7 @@ bool error = false;
          }
 	
 	
-		}
+		
 	// moved loader hints down
     //  Note: There are two kinds of records: data and comment.
       //        A data record begins with a "0x"
@@ -209,7 +209,8 @@ bool Loader::badComment(String inputLine){
 	// return false;
 		
 	// }
-	return (!inputLine.isChar('|', comment, hasError));
+	if (!inputLine.isRepeatingChar(' ', 0, comment-1, hasError)) return true;
+	if (!inputLine.isChar('|', comment, hasError)) return true;
 	// removed below line and now passing error1.yo, but stuck in a loop. cant debug because It does not finish building the test files lol.
 	// || !inputLine.isSubString("                           ",0,hasError));
 }
@@ -219,18 +220,25 @@ bool Loader::badComment(String inputLine){
 		// to fix memory error, I need to loop through input line, find spaces which I use in addr check  // to ensure you get every position and not go out of bounds)
 		  
 		 int i = databegin; 
-		 while(!inputLine.isChar(' ', i, error))
+		 int numofByte = 0;
+		 while(inputLine.isHex(i,2,error))
 		 {
 			i+=2;
-		} 	i--;
+			numofByte++;
+
+		}
+
+		if (!inputLine.isRepeatingChar(' ', i, comment - i, error)) return true;
+		if (!inputLine.isChar('|', comment, error)) return true;
+
 
 		// 
-		
+		int64_t addy = inputLine.convert2Hex(addrbegin, 3, error);
 		//length of data
 		int llength = (databegin-i)/2;
 		// checking for spaces, if a space rest of spaces.
 		// if (!inputLine.isSubString("0x", 0, error)) return true;
-		if (!inputLine.isHex(addrbegin,addrend - addrbegin,error)) return true;
+		if (!inputLine.isHex(addrbegin,addrend - addrbegin + 1,error)) return true;
 		// if (!isaHex(inputLine, addrbegin,addrend,error)) return true;
 	
 		if (!inputLine.isChar(':',5, error)) return true;
@@ -238,8 +246,9 @@ bool Loader::badComment(String inputLine){
 		if (i > databegin && (inputLine.isHex(addrbegin,addrend,error))) return true;
 		if (!inputLine.isChar(' ', comment-1, error)) return true;
 		// if (!inputLine.isaHex(databegin,comment, error)) return true;
-		if (!inputLine.isChar('|', comment, error)) return true;
 		//
+		if (addy <= lastAddress) return true;
+		if(addy + numofByte > Memory::size) return true;
 
 		// check the memory location checks oxfff end memory addr < lastAddr + 1 || addr < 0xfff
 		 return false;
@@ -249,10 +258,10 @@ bool Loader::badComment(String inputLine){
 
 	}
 
-bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
-	 inputLine.convert2Hex(sIdx, len, error);
-	return error;
-}	
+// bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
+// 	 inputLine.convert2Hex(sIdx, len, error);
+// 	return error;
+// }	
 
 	
 

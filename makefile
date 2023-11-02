@@ -2,7 +2,7 @@
 
 yess:
 	(cd src && make yess)
-	(cd bin && ./run.sh)
+	(cd bin && sh ./run.sh)
 
 runlab5:
 	(cd unit && make runlab5)

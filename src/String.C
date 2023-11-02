@@ -253,15 +253,11 @@ bool String::isChar(char what, int32_t idx, bool &error)
       return false;
    }
    error = false;
-   for (int32_t i = idx; i < length; i++)
-   {
-      if (str[i] == what)
-      {
-         return true; // case 2
-      }
+   return (str[idx] == what);
+   
    }
-   return false;
-}
+
+
 
 /*
  * isHex
