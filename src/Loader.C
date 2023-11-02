@@ -252,7 +252,7 @@ bool Loader::badComment(String inputLine){
 bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
 	 inputLine.convert2Hex(sIdx, len, error);
 	return error;
-	
+}	
 
 	
 
