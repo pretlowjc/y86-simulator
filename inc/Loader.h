@@ -44,5 +44,6 @@ class Loader
       //methods called outside of class
       Loader(int argc, char * argv[], Memory * mem);
       bool load();
+	  bool isDataRecord(String);
 };
 #endif
