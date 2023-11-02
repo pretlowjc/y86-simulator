@@ -26,17 +26,19 @@ bool FetchStage::doClockLow(PipeRegArray * pipeRegs)
    bool mem_error = false;
    uint64_t icode = Instruction::INOP, ifun = Instruction::FNONE;
    uint64_t rA = RegisterFile::RNONE, rB = RegisterFile::RNONE;
-   uint64_t valC = 0, valP = 0, stat = 0, predPC = 0;
+   uint64_t valC = 0, valP = 0, stat = Status::SAOK, predPC = 0;
    bool needvalC = false;
    bool needregId = false;
 
+   //TODO: read lab assignment
    //TODO 
    //select PC value and read byte from memory
    //set icode and ifun using byte read from memory
    //uint64_t f_pc =  .... call your select pc function
 
-   //status of this instruction is SAOK (this will change later)
-   stat = Status::SAOK;
+   //set stat for this instruction to Status::SHLT if
+   //icode is Instruction::IHALT; otherwise leave it is
+   //as initialized to Status::SAOK
 
    //TODO
    //In order to calculate the address of the next instruction,

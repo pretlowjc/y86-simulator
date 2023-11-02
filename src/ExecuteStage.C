@@ -1,5 +1,7 @@
 #include "PipeRegArray.h"
 #include "ExecuteStage.h"
+#include "E.h"
+#include "M.h"
 
 /*
  * doClockLow
@@ -12,6 +14,19 @@
  */
 bool ExecuteStage::doClockLow(PipeRegArray * pipeRegs)
 {
+	
+	PipeReg * ereg = pipeRegs->getExecuteReg();
+	uint64_t stat = ereg -> get(E_STAT);
+	uint64_t icode = ereg -> get(E_ICODE);
+	uint64_t ifun = ereg -> get(E_IFUN);
+	uint64_t dstE = ereg -> get(E_DSTE);
+	uint64_t dstM = ereg -> get(E_DSTM);
+	uint64_t valC = ereg -> get(E_VALC);
+	uint64_t valA = ereg -> get(E_VALA);
+	uint64_t srcB = ereg -> get(E_SRCB);
+	uint64_t srcA = ereg -> get(E_SRCA);
+	uint64_t numFields = ereg -> get(E_NUMFIELDS);
+	setMInput(ereg, stat, icode,dstM, dstE, valC, valA, srcB, srcA);
    return false;
 }
 
@@ -24,6 +39,27 @@ bool ExecuteStage::doClockLow(PipeRegArray * pipeRegs)
 */
 void ExecuteStage::doClockHigh(PipeRegArray * pipeRegs)
 {
+	PipeRegField(3).normal(); // confused here why are we passing in a piperegs?
+
+
+}
+
+void ExecuteStage::setMInput(PipeReg * reg, uint64_t stat, uint64_t icode,
+							uint64_t dstM, uint64_t dstE,
+                           uint64_t valC, uint64_t valA, uint64_t srcB, uint64_t srcA)
+{
+	reg->set(M_STAT, stat);
+	reg->set(M_ICODE, icode);
+	// reg->set(E_IFUN, ifun);
+	reg->set(M_VALE, 0);
+	reg->set(M_VALA, 0);
+	reg ->set(M_CND, 2);
+	reg->set(E_VALB, 0);
+	reg->set(M_DSTE,dstE);
+	reg->set(M_DSTM, dstM);
+	// reg->set(M_SRCA, srcA);
+	// reg->set(M_SRCB,srcB);
+
 
 }
 
