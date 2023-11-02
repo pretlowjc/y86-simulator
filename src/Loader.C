@@ -123,7 +123,7 @@ bool Loader::load()
 		
 
    if (!openFile()) return false;
-
+bool error = false;
    std::string line;
    int lineNumber = 1; // needed if an error is found
    while (getline(inf, line))
@@ -135,11 +135,11 @@ bool Loader::load()
     //   // TODO
 
 	
-	bool error = false;
+	
 
 		
-		 if(Loader::badData(inputLine) && inputLine.isSubString("0x", 0, error)){
-
+		 if(badData(inputLine) && inputLine.isSubString((const char *)"0x", 0, error)){
+			
 			return printErrMsg(Loader::baddata,lineNumber,&inputLine);
 
 		 	
@@ -148,10 +148,12 @@ bool Loader::load()
 		// memory address check here last check needed we need to check for that next address 
 		//line is less than the current, also need to check if address is out of bounds.
 		
-		 	if (Loader::badComment(inputLine) && inputLine.isSubString("0x", 0, error)){
+		
+			else if (badComment(inputLine) && inputLine.isSubString((const char *)"0x", 0, error)){   
 				return printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
 		 		
 		 	}
+		else {
 
 		uint32_t address = inputLine.convert2Hex(addrbegin, addrend-addrbegin + 1, error); //  should be address 0xhhh
 		
@@ -168,7 +170,7 @@ bool Loader::load()
          }
 	
 	
-		
+		}
 	// moved loader hints down
       lineNumber++;
    }
@@ -215,7 +217,9 @@ bool Loader::badComment(String inputLine){
 	// return false;
 		
 	// }
-	return (!inputLine.isChar('|', comment, hasError) || !inputLine.isSubString("                           ",0,hasError));
+	return (!inputLine.isChar('|', comment, hasError));
+	// removed below line and now passing error1.yo, but stuck in a loop. cant debug because It does not finish building the test files lol.
+	// || !inputLine.isSubString("                           ",0,hasError));
 
 
 }
@@ -223,23 +227,29 @@ bool Loader::badComment(String inputLine){
 	bool Loader::badData(String inputLine){
 		bool error = false;
 		// to fix memory error, I need to loop through input line, find spaces which I use in addr check  // to ensure you get every position and not go out of bounds)
-		  //length of data
-		 int i = databegin; while(!inputLine.isChar(' ', i, error))
+		  
+		 int i = databegin; 
+		 while(!inputLine.isChar(' ', i, error))
 		 {
-			i+2;
+			i+=2;
 		} 	i--;
+
 		// 
 		
-		int l = (databegin-i)/2;
+		//length of data
+		int llength = (databegin-i)/2;
 		// checking for spaces, if a space rest of spaces.
 		// if (!inputLine.isSubString("0x", 0, error)) return true;
-		if (!inputLine.isHex(addrbegin,addrend-addrbegin + 1,error)) return true;
+		if (!inputLine.isHex(addrbegin,addrend - addrbegin,error)) return true;
+		// if (!isaHex(inputLine, addrbegin,addrend,error)) return true;
+	
 		if (!inputLine.isChar(':',5, error)) return true;
 		if (!inputLine.isChar(' ', addrend + 2, error)) return true;
-		if (!inputLine.isHex(databegin,comment - 1, error)) return true;
-		if (i > databegin && inputLine.isHex(databegin,i,error)) return true;
-		//
+		if (i > databegin && (inputLine.isHex(addrbegin,addrend,error))) return true;
 		if (!inputLine.isChar(' ', comment-1, error)) return true;
+		// if (!inputLine.isaHex(databegin,comment, error)) return true;
+		if (!inputLine.isChar('|', comment, error)) return true;
+		//
 
 		// check the memory location checks oxfff end memory addr < lastAddr + 1 || addr < 0xfff
 		 return false;
@@ -250,14 +260,13 @@ bool Loader::badComment(String inputLine){
 	}
 
 bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
-	if (inputLine.convert2Hex(sIdx, len, error) == false){
-		return false;
-	}
+	 inputLine.convert2Hex(sIdx, len, error);
+	return error;
+	
 
 	
 
 
-	return true;
 
 
 	
