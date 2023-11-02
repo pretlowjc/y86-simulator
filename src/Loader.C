@@ -6,7 +6,6 @@
 #include "Loader.h"
 #include "Tools.h"
 
-
 /*
  * Loader
  * Initializes the private data members
@@ -120,10 +119,10 @@ bool Loader::openFile()
  */
 bool Loader::load()
 {
-		
 
-   if (!openFile()) return false;
+if (!openFile()) return false;
 bool error = false;
+
    std::string line;
    int lineNumber = 1; // needed if an error is found
    while (getline(inf, line))
@@ -132,7 +131,8 @@ bool error = false;
       // Now, all accesses to the input line MUST be via your
       // String class methods
       String inputLine(line);
-    //   // TODO
+      // TODO
+      // COMMENTS
 
 	
 	
@@ -172,31 +172,23 @@ bool error = false;
 	
 		}
 	// moved loader hints down
-      lineNumber++;
-   }
+    //  Note: There are two kinds of records: data and comment.
+      //        A data record begins with a "0x"
 
+      // If the line is a data record with errors
+      // then print the Loader::baddata error message and return false
+    
+      lineNumber++;
+
+      // if (!badData(inputLine) && !badComment(inputLine))
+   }
    return true; // load succeeded
 }
 
-	//COMMENTS
-      // Note: there are two kinds of records: data and comment
-      //       A data record begins with a "0x"
-	  
+// Don't do all of this work in this method!
+// Break the work up into multiple single purpose methods
 
-      //
-      // If the line is a data record with errors
-      // then print the Loader::baddata error message and return false
-      //
-      // If the line is a comment record with errors
-      // then print the Loader::badcomment error message and return false
-      //
-      // Otherwise, load any data on the line into
-      // memory
-      //
-      // Don't do all of this work in this method!
-      // Break the work up into multiple single purpose methods
-
-      // increment the line number for next iteration
+// increment the line number for next iteration
 
 // Add helper methods definitions here and the declarations to Loader.h
 // In your code, be sure to use the static const variables defined in
@@ -220,8 +212,6 @@ bool Loader::badComment(String inputLine){
 	return (!inputLine.isChar('|', comment, hasError));
 	// removed below line and now passing error1.yo, but stuck in a loop. cant debug because It does not finish building the test files lol.
 	// || !inputLine.isSubString("                           ",0,hasError));
-
-
 }
 
 	bool Loader::badData(String inputLine){
@@ -270,5 +260,4 @@ bool Loader::isaHex(String inputLine,int32_t sIdx, int32_t len, bool &error){
 
 
 	
-}
 
