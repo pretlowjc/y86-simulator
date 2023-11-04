@@ -12,7 +12,7 @@
  */
 bool WritebackStage::doClockLow(PipeRegArray * pipeRegs)
 {
-   return false;
+   return true;
 }
 
 /* doClockHigh

@@ -9,59 +9,52 @@
  * Performs the Fetch stage combinational logic that is performed when
  * the clock edge is low.
  *
- * @param: pipeRegs - array of the pipeline register 
-                      (F, D, E, M, W instances)
+ * @param: pipeRegs - array of the pipeline register
+					  (F, D, E, M, W instances)
  */
-bool ExecuteStage::doClockLow(PipeRegArray * pipeRegs)
+bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 {
-	
-	PipeReg * ereg = pipeRegs->getExecuteReg();
-	uint64_t stat = ereg -> get(E_STAT);
-	uint64_t icode = ereg -> get(E_ICODE);
-	uint64_t ifun = ereg -> get(E_IFUN);
-	uint64_t dstE = ereg -> get(E_DSTE);
-	uint64_t dstM = ereg -> get(E_DSTM);
-	uint64_t valC = ereg -> get(E_VALC);
-	uint64_t valA = ereg -> get(E_VALA);
-	uint64_t srcB = ereg -> get(E_SRCB);
-	uint64_t srcA = ereg -> get(E_SRCA);
-	uint64_t numFields = ereg -> get(E_NUMFIELDS);
-	setMInput(ereg, stat, icode,dstM, dstE, valC, valA, srcB, srcA);
-   return false;
+
+	PipeReg *ereg = pipeRegs->getExecuteReg();
+	uint64_t stat = ereg->get(E_STAT);
+	uint64_t icode = ereg->get(E_ICODE);
+	// uint64_t ifun = ereg -> get(E_IFUN);
+	uint64_t dstE = ereg->get(E_DSTE);
+	uint64_t dstM = ereg->get(E_DSTM);
+	uint64_t valC = ereg->get(E_VALC);
+	uint64_t valA = ereg->get(E_VALA);
+	uint64_t srcB = ereg->get(E_SRCB);
+	uint64_t srcA = ereg->get(E_SRCA);
+	// uint64_t numFields = ereg -> get(E_NUMFIELDS);
+	setMInput(ereg, stat, icode, dstM, dstE, valC, valA, srcB, srcA);
+	return false;
 }
 
 /* doClockHigh
  *
  * applies the appropriate control signal to the F
  * and D register intances
- * 
+ *
  * @param: pipeRegs - array of the pipeline register (F, D, E, M, W instances)
-*/
-void ExecuteStage::doClockHigh(PipeRegArray * pipeRegs)
+ */
+void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 	PipeRegField(3).normal(); // confused here why are we passing in a piperegs?
-
-
 }
 
-void ExecuteStage::setMInput(PipeReg * reg, uint64_t stat, uint64_t icode,
-							uint64_t dstM, uint64_t dstE,
-                           uint64_t valC, uint64_t valA, uint64_t srcB, uint64_t srcA)
+void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
+							 uint64_t dstM, uint64_t dstE,
+							 uint64_t valC, uint64_t valA, uint64_t srcB, uint64_t srcA)
 {
 	reg->set(M_STAT, stat);
 	reg->set(M_ICODE, icode);
 	// reg->set(E_IFUN, ifun);
 	reg->set(M_VALE, 0);
 	reg->set(M_VALA, 0);
-	reg ->set(M_CND, 2);
+	reg->set(M_CND, 2);
 	reg->set(E_VALB, 0);
-	reg->set(M_DSTE,dstE);
+	reg->set(M_DSTE, dstE);
 	reg->set(M_DSTM, dstM);
 	// reg->set(M_SRCA, srcA);
 	// reg->set(M_SRCB,srcB);
-
-
 }
-
-
-
