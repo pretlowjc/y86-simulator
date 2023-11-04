@@ -1,4 +1,4 @@
-//TODO add more #includes as you need them
+// TODO add more #includes as you need them
 #include <cstdint>
 #include "PipeRegArray.h"
 #include "PipeReg.h"
@@ -9,6 +9,8 @@
 #include "Status.h"
 #include "F.h"
 #include "D.h"
+#include "M.h"
+#include "W.h"
 
 /*
  * doClockLow
@@ -16,13 +18,13 @@
  * Performs the Fetch stage combinational logic that is performed when
  * the clock edge is low.
  *
- * @param: pipeRegs - array of the pipeline register 
+ * @param: pipeRegs - array of the pipeline register
                       (F, D, E, M, W instances)
  */
-bool FetchStage::doClockLow(PipeRegArray * pipeRegs)
+bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 {
-   PipeReg * freg = pipeRegs->getFetchReg();
-   PipeReg * dreg = pipeRegs->getDecodeReg();
+   PipeReg *freg = pipeRegs->getFetchReg();
+   PipeReg *dreg = pipeRegs->getDecodeReg();
    bool mem_error = false;
    uint64_t icode = Instruction::INOP, ifun = Instruction::FNONE;
    uint64_t rA = RegisterFile::RNONE, rB = RegisterFile::RNONE;
@@ -30,35 +32,35 @@ bool FetchStage::doClockLow(PipeRegArray * pipeRegs)
    bool needvalC = false;
    bool needregId = false;
 
-   //TODO: read lab assignment
-   //TODO 
-   //select PC value and read byte from memory
-   //set icode and ifun using byte read from memory
-   //uint64_t f_pc =  .... call your select pc function
+   // TODO: read lab assignment
+   // TODO
+   // select PC value and read byte from memory
+   // set icode and ifun using byte read from memory
+   // uint64_t f_pc =  .... call your select pc function
 
-   //set stat for this instruction to Status::SHLT if
-   //icode is Instruction::IHALT; otherwise leave it is
-   //as initialized to Status::SAOK
+   // set stat for this instruction to Status::SHLT if
+   // icode is Instruction::IHALT; otherwise leave it is
+   // as initialized to Status::SAOK
 
-   //TODO
-   //In order to calculate the address of the next instruction,
-   //you'll need to know whether this current instruction has an
-   //immediate field and a register byte. (Look at the instruction encodings.)
-   //needvalC =  .... call your need valC function
-   //needregId = .... call your need regId function
+   // TODO
+   // In order to calculate the address of the next instruction,
+   // you'll need to know whether this current instruction has an
+   // immediate field and a register byte. (Look at the instruction encodings.)
+   // needvalC =  .... call your need valC function
+   // needregId = .... call your need regId function
 
-   //TODO
-   //determine the address of the next sequential function
-   //valP = ..... call your PC increment function 
+   // TODO
+   // determine the address of the next sequential function
+   // valP = ..... call your PC increment function
 
-   //TODO
-   //calculate the predicted PC value
-   //predPC = .... call your function that predicts the next PC   
+   // TODO
+   // calculate the predicted PC value
+   // predPC = .... call your function that predicts the next PC
 
-   //set the input for the PREDPC pipe register field in the F register
+   // set the input for the PREDPC pipe register field in the F register
    freg->set(F_PREDPC, predPC);
 
-   //set the inputs for the D register
+   // set the inputs for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    return false;
 }
@@ -67,13 +69,13 @@ bool FetchStage::doClockLow(PipeRegArray * pipeRegs)
  *
  * applies the appropriate control signal to the F
  * and D register intances
- * 
+ *
  * @param: pipeRegs - array of the pipeline register (F, D, E, M, W instances)
-*/
-void FetchStage::doClockHigh(PipeRegArray * pipeRegs)
+ */
+void FetchStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-   PipeReg * freg = pipeRegs->getFetchReg();  
-   PipeReg * dreg = pipeRegs->getDecodeReg();
+   PipeReg *freg = pipeRegs->getFetchReg();
+   PipeReg *dreg = pipeRegs->getDecodeReg();
    freg->normal();
    dreg->normal();
 }
@@ -90,8 +92,8 @@ void FetchStage::doClockHigh(PipeRegArray * pipeRegs)
  * @param: rB - value to be stored in the rB pipeline register within D
  * @param: valC - value to be stored in the valC pipeline register within D
  * @param: valP - value to be stored in the valP pipeline register within D
-*/
-void FetchStage::setDInput(PipeReg * dreg, uint64_t stat, uint64_t icode,
+ */
+void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
                            uint64_t ifun, uint64_t rA, uint64_t rB,
                            uint64_t valC, uint64_t valP)
 {
@@ -103,32 +105,81 @@ void FetchStage::setDInput(PipeReg * dreg, uint64_t stat, uint64_t icode,
    dreg->set(D_VALC, valC);
    dreg->set(D_VALP, valP);
 }
-//TODO
-//Write your selectPC, needRegIds, needValC, PC increment, and predictPC methods
-//Remember to add declarations for these to FetchStage.h
+// TODO
+// Write your selectPC, needRegIds, needValC, PC increment, and predictPC methods
+// Remember to add declarations for these to FetchStage.h
 
-// Here is the HCL describing the behavior for some of these methods. 
-/*
+// Here is the HCL describing the behavior for some of these methods.
 
-//selectPC method: input is F, M, and W registers
-word f_pc = [
-    M_icode == IJXX && !M_Cnd : M_valA;
-    W_icode == IRET : W_valM;
-    1: F_predPC;
-];
+// selectPC method: input is F, M, and W registers
+//  word f_pc = [
+//     #1 M_icode == IJXX && !M_Cnd : M_valA;
+//     #2 W_icode == IRET : W_valM;
+//     #3 1: F_predPC;
+//  ];
+uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
+{
+   /*
+      Initial thoughts on approach:
+      #1
+      - uint64_t m_icode
+      - Instruction::IJXX
+      - uint64_t m_cnd
+      - get mreg valA
+      if m_icode is equal to IJXX and not m_cnd then get m_valA
 
-//needRegIds  method: input is f_icode
-bool need_regids = f_icode in { IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, IIRMOVQ, IRMMOVQ, IMRMOVQ };
+      #2
+      - uint64_t w_icode
+      - Instruction::IRET
+      - get wreg valM
+      if w_icode is equal to IRET then get w_valM
 
-//needValC method: input is f_icode
-bool need_valC = f_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL };
+      #3
+      - get freg predPC
+      otherwise return freg predPC (I assume is predicted pc...)
 
-//predictPC method: inputs are f_icode, f_valC, f_valP
-word f_predPC = [
-    f_icode in { IJXX, ICALL } : f_valC;
-    1: f_valP;
-];
+      - Justin
+   */
 
-*/
+   return 0;
+}
 
+// needRegIds  method: input is f_icode
+//  bool need_regids = f_icode in { IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, IIRMOVQ, IRMMOVQ, IMRMOVQ };
+bool FetchStage::needRegIds(uint64_t f_icode)
+{
+   return (f_icode == Instruction::IRRMOVQ || f_icode == Instruction::IOPQ || f_icode == Instruction::IPUSHQ || f_icode == Instruction::IPOPQ || f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction::IMRMOVQ);
+}
 
+// needValC method: input is f_icode
+//  bool need_valC = f_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL };
+bool FetchStage::needValC(uint64_t f_icode) 
+{
+   return (f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction:: IJXX || f_icode == Instruction::ICALL);
+}
+
+// predictPC method: inputs are f_icode, f_valC, f_valP
+//  word f_predPC = [
+//      #1 f_icode in { IJXX, ICALL } : f_valC;
+//      #2 1: f_valP;
+//  ];
+
+uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
+{
+   /*
+      initial thoughts on approach:
+      #1 
+      - uint64_t f_icode
+      - Instruction::IJXX
+      - Instruction::ICALL
+      - uint64_t f_valC
+      if f_icode is IJXX or ICALL then return f_valC
+      
+      #2 
+      - uint64_t f_valP
+      otherwise return f_valP
+
+      - Justin
+   */
+   return 0;
+}
