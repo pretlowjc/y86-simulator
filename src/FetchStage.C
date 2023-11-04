@@ -31,12 +31,20 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    uint64_t valC = 0, valP = 0, stat = Status::SAOK, predPC = 0;
    bool needvalC = false;
    bool needregId = false;
+   PipeReg *wreg = pipeRegs->getWritebackReg();
+   PipeReg *mreg = pipeRegs->getMemoryReg();
 
    // TODO: read lab assignment
    // TODO
    // select PC value and read byte from memory
    // set icode and ifun using byte read from memory
-   // uint64_t f_pc =  .... call your select pc function
+   F *f;
+   M *m;
+   W *w;
+   uint64_t f_pc = selectPC(f,m,w);
+	if(icode == Instruction::IHALT){
+		stat = Status::SHLT;
+	}
 
    // set stat for this instruction to Status::SHLT if
    // icode is Instruction::IHALT; otherwise leave it is
@@ -46,16 +54,17 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // In order to calculate the address of the next instruction,
    // you'll need to know whether this current instruction has an
    // immediate field and a register byte. (Look at the instruction encodings.)
-   // needvalC =  .... call your need valC function
-   // needregId = .... call your need regId function
+    needvalC = needValC(icode); // ? // needvalC = ...... call your needValC
+	needregId = needRegIds(icode);    // needregId = .... call your need regId function
+	
 
    // TODO
    // determine the address of the next sequential function
-   // valP = ..... call your PC increment function
+    valP = PCincrement(f_pc, needregId, needValC); // ?
 
    // TODO
    // calculate the predicted PC value
-   // predPC = .... call your function that predicts the next PC
+    predPC = predictPC(icode,valC,valP); //.... call your function that predicts the next PC
 
    // set the input for the PREDPC pipe register field in the F register
    freg->set(F_PREDPC, predPC);
@@ -117,9 +126,18 @@ void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
 //     #2 W_icode == IRET : W_valM;
 //     #3 1: F_predPC;
 //  ];
-uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
+uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
 {
-   /*
+	uint64_t M_icode;
+	uint64_t W_icode;
+	uint64_t F_predPC;
+	uint64_t M_cnd;
+	uint64_t m_valA;
+	M_icode = freg -> get(M_ICODE);
+	M_cnd = mreg -> get(M_CND);
+	m_valA = mreg -> get(M_VALA);
+	// typedef unsigned int WORD [ M_icode, W_icode, F_predPC];
+	/*
       Initial thoughts on approach:
       #1
       - uint64_t m_icode
@@ -127,21 +145,29 @@ uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
       - uint64_t m_cnd
       - get mreg valA
       if m_icode is equal to IJXX and not m_cnd then get m_valA
-
+	*/
+	M_icode = (Instruction::IJXX && !M_cnd) ? : m_valA;
+	/*
       #2
       - uint64_t w_icode
       - Instruction::IRET
       - get wreg valM
       if w_icode is equal to IRET then get w_valM
+	*/
+	W_icode = (W_icode == Instruction::IRET) ? : wreg -> get(W_VALM);
+	
 
+
+	/*	
       #3
       - get freg predPC
       otherwise return freg predPC (I assume is predicted pc...)
 
       - Justin
    */
-
-   return 0;
+  	if (freg -> get(F_PREDPC) == 1) return freg -> get(F_PREDPC); 
+   
+   	return freg -> get(F_predPC);
 }
 
 // needRegIds  method: input is f_icode
@@ -166,6 +192,7 @@ bool FetchStage::needValC(uint64_t f_icode)
 
 uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
 {
+	
    /*
       initial thoughts on approach:
       #1 
@@ -174,12 +201,24 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
       - Instruction::ICALL
       - uint64_t f_valC
       if f_icode is IJXX or ICALL then return f_valC
-      
+    */
+   	if(f_icode == Instruction::IJXX || Instruction::ICALL) return f_valC;
+	
+    /*
       #2 
       - uint64_t f_valP
       otherwise return f_valP
 
       - Justin
    */
-   return 0;
+   return f_valP;
+}
+
+uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult){
+	if(regResult && valCResult) return f_pc + 1;
+
+	return f_pc;
+
+
+	
 }

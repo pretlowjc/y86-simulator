@@ -44,7 +44,12 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void DecodeStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeRegField(2).normal();
+	PipeReg *dreg = pipeRegs -> getDecodeReg();
+	PipeReg *ereg = pipeRegs -> getExecuteReg();
+
+	dreg -> normal();
+	ereg -> normal();
+
 }
 
 void DecodeStage::setEInput(PipeReg *dreg, uint64_t stat, uint64_t icode,

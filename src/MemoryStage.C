@@ -41,7 +41,10 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void MemoryStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeRegField(3).normal();
+	PipeReg *mreg = pipeRegs -> getMemoryReg();
+	PipeReg *wreg = pipeRegs -> getWritebackReg();
+	mreg -> normal();
+	wreg -> normal();
 }
 
 void setWInput(PipeReg *reg, uint64_t stat, uint64_t icode, uint64_t valE, uint64_t valM, uint64_t dstE, uint64_t dstM)

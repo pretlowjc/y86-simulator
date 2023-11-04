@@ -39,7 +39,11 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeRegField(3).normal(); // confused here why are we passing in a piperegs?
+	PipeReg *ereg = pipeRegs -> getExecuteReg();
+	PipeReg *mreg = pipeRegs -> getMemoryReg();
+	ereg -> normal();
+	mreg -> normal();
+
 }
 
 void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
