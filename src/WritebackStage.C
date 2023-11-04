@@ -1,5 +1,7 @@
 #include "PipeRegArray.h"
 #include "WritebackStage.h"
+#include "W.h"
+#include "Status.h"
 
 /*
  * doClockLow
@@ -12,7 +14,16 @@
  */
 bool WritebackStage::doClockLow(PipeRegArray * pipeRegs)
 {
-   return true;
+   // if the stat value out of the W register is NOT equal to Status::SAOK
+   // then return true.
+   PipeReg *wreg = pipeRegs->getWritebackReg();
+   uint64_t stat = wreg->get(W_STAT);
+   if (stat != Status::SAOK)
+   { 
+      return true;
+   }
+   // Otherwise, return false.
+   return false;
 }
 
 /* doClockHigh
