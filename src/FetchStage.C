@@ -42,6 +42,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    M *m;
    W *w;
    uint64_t f_pc = selectPC(f,m,w);
+   // I am confused on the read byte from memory and setting the icode and ifun using byte read from memory.
 	if(icode == Instruction::IHALT){
 		stat = Status::SHLT;
 	}
