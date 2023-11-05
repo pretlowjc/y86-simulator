@@ -61,7 +61,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 
    // TODO
    // determine the address of the next sequential function
-    valP = PCincrement(f_pc, needregId, needValC); // ?
+    valP = PCincrement(f_pc, needregId, needvalC); // ?
 
    // TODO
    // calculate the predicted PC value
@@ -136,7 +136,7 @@ uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
 	uint64_t m_valA;
 	M_icode = freg -> get(M_ICODE);
 	M_cnd = mreg -> get(M_CND);
-	m_valA = mreg -> get(M_VALA);
+	// m_valA = mreg -> get(M_VALA);
 	// typedef unsigned int WORD [ M_icode, W_icode, F_predPC];
 	/*
       Initial thoughts on approach:
@@ -147,7 +147,8 @@ uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
       - get mreg valA
       if m_icode is equal to IJXX and not m_cnd then get m_valA
 	*/
-	M_icode = (Instruction::IJXX && !M_cnd) ? : m_valA;
+	
+	if(M_icode == (Instruction::IJXX && !M_cnd)) return mreg -> get(M_VALA);
 	/*
       #2
       - uint64_t w_icode
@@ -155,7 +156,7 @@ uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
       - get wreg valM
       if w_icode is equal to IRET then get w_valM
 	*/
-	W_icode = (W_icode == Instruction::IRET) ? : wreg -> get(W_VALM);
+	else if(W_icode == Instruction::IRET) return mreg -> get(W_VALM);
 	
 
 
@@ -166,9 +167,8 @@ uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
 
       - Justin
    */
-  	if (freg -> get(F_PREDPC) == 1) return freg -> get(F_PREDPC); 
-   
-   	return freg -> get(F_predPC);
+  	
+	return freg -> get(F_PREDPC); // we set f_predpc to our predicted PC earlier.
 }
 
 // needRegIds  method: input is f_icode
@@ -216,9 +216,13 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
 }
 
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult){
-	if(regResult && valCResult) return f_pc + 1;
+	if (regResult) f_pc += 1;
+	if (valCResult) f_pc += 8;
 
-	return f_pc;
+
+	return f_pc += 1;
+
+	
 
 
 	

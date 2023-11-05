@@ -16,6 +16,7 @@
 bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 {
 	PipeReg *dreg = pipeRegs->getDecodeReg();
+	PipeReg *ereg = pipeRegs->getExecuteReg();
 
 	uint64_t stat = dreg->get(D_STAT);
 	uint64_t icode = dreg->get(D_ICODE);
@@ -30,7 +31,7 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	// uint64_t numFields = dreg -> get(D_NUMFIELDS);
 
 	// maybe pass numfields.
-	setEInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+	setEInput(ereg, stat, icode, ifun, rA, rB, valC, valP);
 
 	return false;
 }
