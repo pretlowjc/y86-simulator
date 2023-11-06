@@ -11,7 +11,10 @@
 #include "D.h"
 #include "M.h"
 #include "W.h"
+#include "Tools.h"
+#include <iostream>
 
+using namespace std;
 /*
  * doClockLow
  *
@@ -37,16 +40,24 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // TODO: read lab assignment
    // TODO
    // select PC value and read byte from memory
+	
    // set icode and ifun using byte read from memory
-   F *f;
-   M *m;
-   W *w;
-   uint64_t f_pc = selectPC(f,m,w);
+
+    uint64_t f_pc = selectPC(freg,mreg,wreg);
+	uint64_t byte = mem -> getByte(f_pc, mem_error);
+	uint64_t f_icode = Tools::getBits(byte,4,7);
+	uint64_t f_ifun =  Tools::getBits(byte, 0, 3);
+	
+
+
+
    // I am confused on the read byte from memory and setting the icode and ifun using byte read from memory.
-	if(icode == Instruction::IHALT){
+	if(f_icode == Instruction::IHALT){
 		stat = Status::SHLT;
 	}
-
+	else {
+	stat = Status::SAOK;
+	}
    // set stat for this instruction to Status::SHLT if
    // icode is Instruction::IHALT; otherwise leave it is
    // as initialized to Status::SAOK
@@ -55,8 +66,8 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // In order to calculate the address of the next instruction,
    // you'll need to know whether this current instruction has an
    // immediate field and a register byte. (Look at the instruction encodings.)
-    needvalC = needValC(icode); // ? // needvalC = ...... call your needValC
-	needregId = needRegIds(icode);    // needregId = .... call your need regId function
+    needvalC = needValC(f_icode); // ? // needvalC = ...... call your needValC
+	needregId = needRegIds(f_icode);    // needregId = .... call your need regId function
 	
 
    // TODO
@@ -65,13 +76,13 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 
    // TODO
    // calculate the predicted PC value
-    predPC = predictPC(icode,valC,valP); //.... call your function that predicts the next PC
+    predPC = predictPC(f_icode,valC,valP); //.... call your function that predicts the next PC
 
    // set the input for the PREDPC pipe register field in the F register
    freg->set(F_PREDPC, predPC);
 
    // set the inputs for the D register
-   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+   setDInput(dreg, stat, f_icode, f_ifun, rA, rB, valC, valP);
    return false;
 }
 
@@ -127,15 +138,15 @@ void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
 //     #2 W_icode == IRET : W_valM;
 //     #3 1: F_predPC;
 //  ];
-uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
+uint64_t FetchStage::selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg)
 {
+	bool haserror = false;
 	uint64_t M_icode;
 	uint64_t W_icode;
 	uint64_t F_predPC;
-	uint64_t M_cnd;
 	uint64_t m_valA;
-	M_icode = freg -> get(M_ICODE);
-	M_cnd = mreg -> get(M_CND);
+	M_icode = mreg -> get(M_ICODE);
+	uint64_t M_cnd;
 	// m_valA = mreg -> get(M_VALA);
 	// typedef unsigned int WORD [ M_icode, W_icode, F_predPC];
 	/*
@@ -156,7 +167,7 @@ uint64_t FetchStage::selectPC(F *freg, M *mreg, W *wreg)
       - get wreg valM
       if w_icode is equal to IRET then get w_valM
 	*/
-	else if(W_icode == Instruction::IRET) return mreg -> get(W_VALM);
+	else if(W_icode == Instruction::IRET) return wreg -> get(W_VALM);
 	
 
 
@@ -203,7 +214,7 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
       - uint64_t f_valC
       if f_icode is IJXX or ICALL then return f_valC
     */
-   	if(f_icode == Instruction::IJXX || Instruction::ICALL) return f_valC;
+   	if(f_icode == Instruction::IJXX || f_icode == Instruction::ICALL) return f_valC;
 	
     /*
       #2 

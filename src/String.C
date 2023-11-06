@@ -318,20 +318,14 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
 bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
 {
    // TODO
-   if (length < 0 || badIndex(startIdx))
-   {
-      error = true;
-      return false; // case 1.
-   }
 
    error = false;
 
    const int subStrLen = strlen(subStr);
-   const int strLen = strlen(str);
 
    int32_t endIdx = startIdx + subStrLen - 1;
 
-   if (badIndex(endIdx) || endIdx >= strLen)
+   if (badIndex(startIdx) || badIndex(endIdx))
    {
       error = true;
       return false;

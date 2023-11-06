@@ -17,7 +17,7 @@ private:
                   uint64_t valC, uint64_t valP);
    bool needRegIds(uint64_t f_icode);
    bool needValC(uint64_t f_icode);
-   uint64_t selectPC(F *freg, M *mreg, W *wreg);
+   uint64_t selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg);
    uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
 
 public :
