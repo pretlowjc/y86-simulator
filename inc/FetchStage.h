@@ -11,6 +11,7 @@ class FetchStage : public Stage
 {
 private:
    // TODO: provide declarations for new methods
+   uint64_t getRegIds(bool regResult);
    uint64_t PCincrement(uint64_t f_pc, bool regResult, bool valCResult);
    void setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode, uint64_t ifun,
                   uint64_t rA, uint64_t rB,

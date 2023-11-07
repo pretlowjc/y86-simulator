@@ -67,7 +67,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // you'll need to know whether this current instruction has an
    // immediate field and a register byte. (Look at the instruction encodings.)
     needvalC = needValC(f_icode); // ? // needvalC = ...... call your needValC
-	needregId = needRegIds(f_icode);    // needregId = .... call your need regId function
+	needregId = needRegIds(f_icode);   // needregId = .... call your need regId function
 	
 
    // TODO
@@ -210,4 +210,17 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
 
 
 	
+}
+
+void FetchStage::getRegIds(bool needRegIds, uint64_t rA, uint64_t rB, uint64_t f_pc){
+	bool hasError = false;
+	if(needRegIds){ // if needRegIds is true
+		uint64_t byte = mem -> getByte(f_pc,hasError); // build byte variable at f_pc address
+		rA = Tools::getBits(byte, 4, 7); // place bits 4-7 for rA
+		rB = Tools::getBits(byte)
+	
+	}
+
+
+	return 0;
 }
