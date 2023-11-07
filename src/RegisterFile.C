@@ -13,7 +13,7 @@ RegisterFile *RegisterFile::regInstance = NULL;
  */
 RegisterFile::RegisterFile()
 {
-   for (int i = 0; i <= RegisterFile::size; i++)
+   for (int i = 0; i < RegisterFile::size; i++)
    {
       reg[i] = 0;
    }

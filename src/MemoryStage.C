@@ -18,7 +18,7 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
 {
 	// Some of this is possibly wrong. - Justin
 	
-	PipeReg *mreg = pipeRegs->getExecuteReg();
+	PipeReg *mreg = pipeRegs -> getMemoryReg();
 	PipeReg *wreg = pipeRegs -> getWritebackReg();
 	uint64_t stat = mreg->get(M_STAT);
 	uint64_t icode = mreg->get(M_ICODE);
@@ -26,11 +26,6 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t dstE = mreg->get(M_DSTE);
 	uint64_t valE = mreg -> get(M_VALE);
 	m_valM = 0;
-	// uint64_t valC = mreg->get(E_VALC);
-	// uint64_t valA = mreg->get(M_VALA);
-	// uint64_t srcB = mreg -> get(E_SRCB);
-	// uint64_t srcA = mreg -> get(E_SRCA);
-	// // uint64_t numFields = mreg -> get(E_NUMFIELDS);
 	setWInput(wreg, stat, icode, valE, m_valM, dstE, dstM);
 
 	return false;
@@ -45,9 +40,7 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void MemoryStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeReg *mreg = pipeRegs -> getMemoryReg();
 	PipeReg *wreg = pipeRegs -> getWritebackReg();
-	mreg -> normal();
 	wreg -> normal();
 }
 

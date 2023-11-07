@@ -22,13 +22,11 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	// uint64_t ifun = ereg -> get(E_IFUN);
 	uint64_t dstE = ereg->get(E_DSTE);
 	uint64_t dstM = ereg->get(E_DSTM);
-	uint64_t valC = ereg->get(E_VALC);
+	uint64_t valE = ereg->get(e_valE);
 	uint64_t valA = ereg->get(E_VALA);
-	uint64_t srcB = ereg->get(E_SRCB);
-	uint64_t srcA = ereg->get(E_SRCA);
 	uint64_t e_cnd = 0;
 	// uint64_t numFields = ereg -> get(E_NUMFIELDS);
-	setMInput(mreg, stat, icode, dstM, dstE, valC, valA, srcB, srcA, e_cnd);
+	setMInput(mreg, stat, icode, e_cnd, valE, valA, dstE, dstM);
 	return false;
 }
 
@@ -41,16 +39,14 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeReg *ereg = pipeRegs -> getExecuteReg();
 	PipeReg *mreg = pipeRegs -> getMemoryReg();
-	ereg -> normal();
 	mreg -> normal();
 
 }
 
 void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
-							 uint64_t dstM, uint64_t dstE,
-							 uint64_t valC, uint64_t valA, uint64_t srcB, uint64_t srcA, uint64_t e_cnd)
+							 uint64_t e_cnd, uint64_t valE,
+							 uint64_t valA, uint64_t dstE, uint64_t dstM)
 {
 	reg->set(M_STAT, stat);
 	reg->set(M_ICODE, icode);
@@ -58,7 +54,6 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 	reg->set(M_VALE, 0);
 	reg->set(M_VALA, 0);
 	 reg->set(M_CND, e_cnd);
-	reg->set(E_VALB, 0);
 	reg->set(M_DSTE, dstE);
 	reg->set(M_DSTM, dstM);
 	// reg->set(M_SRCA, srcA);

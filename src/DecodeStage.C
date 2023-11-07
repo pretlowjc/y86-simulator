@@ -24,14 +24,19 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t rA = dreg->get(D_RA);
 	uint64_t rB = dreg->get(D_RB);
 	uint64_t valC = dreg->get(D_VALC);
-	uint64_t valP = dreg->get(D_VALP);
+	uint64_t valA = 0;
+	uint64_t valB = 0;
+	uint64_t dstE = RegisterFile::RNONE;
+	uint64_t dstM = RegisterFile::RNONE;
+	uint64_t srcA = RegisterFile::RNONE;
+	uint64_t srcB = RegisterFile::RNONE;
 
 	// During compilation, numFields is an unused variable.
 	// I don't we need it... -Justin
 	// uint64_t numFields = dreg -> get(D_NUMFIELDS);
 
 	// maybe pass numfields.
-	setEInput(ereg, stat, icode, ifun, rA, rB, valC, valP);
+	setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, srcA, srcB);
 
 	return false;
 }
@@ -45,27 +50,24 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void DecodeStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeReg *dreg = pipeRegs -> getDecodeReg();
 	PipeReg *ereg = pipeRegs -> getExecuteReg();
 
-	dreg -> normal();
 	ereg -> normal();
 
 }
 
-void DecodeStage::setEInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
-							uint64_t ifun, uint64_t rA, uint64_t rB,
-							uint64_t valC, uint64_t valP)
+void DecodeStage::setEInput(PipeReg *ereg, uint64_t stat, uint64_t icode,
+							uint64_t ifun, uint64_t valC, uint64_t valA,
+							uint64_t valB, uint64_t dstE, uint64_t dstM, uint64_t srcA, uint64_t srcB)
 {
-	dreg->set(E_STAT, stat);
-	dreg->set(E_ICODE, icode);
-	dreg->set(E_IFUN, ifun);
-	dreg->set(D_VALC, valC);
-	dreg->set(D_VALP, valP);
-	dreg->set(E_VALA, 0);
-	dreg->set(E_VALB, 0);
-	dreg->set(E_DSTE, RegisterFile::RNONE);
-	dreg->set(E_DSTM, RegisterFile::RNONE);
-	dreg->set(E_SRCA, rA);
-	dreg->set(E_SRCB, rB);
+	ereg->set(E_STAT, stat);
+	ereg->set(E_ICODE, icode);
+	ereg->set(E_IFUN, ifun);
+	ereg->set(E_VALC, valC);
+	ereg->set(E_VALA, valA );
+	ereg->set(E_VALB, valB);
+	ereg->set(E_DSTE, dstE);
+	ereg->set(E_DSTM, dstM);
+	ereg->set(E_SRCA, srcA);
+	ereg->set(E_SRCB, srcB);
 }

@@ -18,6 +18,7 @@ bool WritebackStage::doClockLow(PipeRegArray * pipeRegs)
    // then return true.
    PipeReg *wreg = pipeRegs->getWritebackReg();
    uint64_t stat = wreg->get(W_STAT);
+
    if (stat != Status::SAOK)
    { 
       return true;

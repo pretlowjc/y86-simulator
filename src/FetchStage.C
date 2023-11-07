@@ -141,43 +141,16 @@ void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
 uint64_t FetchStage::selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg)
 {
 	bool haserror = false;
-	uint64_t M_icode;
-	uint64_t W_icode;
-	uint64_t F_predPC;
-	uint64_t m_valA;
-	M_icode = mreg -> get(M_ICODE);
-	uint64_t M_cnd;
-	// m_valA = mreg -> get(M_VALA);
-	// typedef unsigned int WORD [ M_icode, W_icode, F_predPC];
-	/*
-      Initial thoughts on approach:
-      #1
-      - uint64_t m_icode
-      - Instruction::IJXX
-      - uint64_t m_cnd
-      - get mreg valA
-      if m_icode is equal to IJXX and not m_cnd then get m_valA
-	*/
+	uint64_t M_icode = mreg -> get(M_ICODE);
+	uint64_t W_icode = wreg -> get(W_ICODE);
+	uint64_t M_cnd = mreg->get(M_CND);
 	
-	if(M_icode == (Instruction::IJXX && !M_cnd)) return mreg -> get(M_VALA);
-	/*
-      #2
-      - uint64_t w_icode
-      - Instruction::IRET
-      - get wreg valM
-      if w_icode is equal to IRET then get w_valM
-	*/
+	
+	if((M_icode == Instruction::IJXX) && !M_cnd) return mreg->get(M_VALA);
+	
 	else if(W_icode == Instruction::IRET) return wreg -> get(W_VALM);
 	
 
-
-	/*	
-      #3
-      - get freg predPC
-      otherwise return freg predPC (I assume is predicted pc...)
-
-      - Justin
-   */
   	
 	return freg -> get(F_PREDPC); // we set f_predpc to our predicted PC earlier.
 }
