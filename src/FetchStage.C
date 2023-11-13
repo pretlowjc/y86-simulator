@@ -89,6 +89,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // In order to calculate the address of the next instruction,
    // you'll need to know whether this current instruction has an
    // immediate field and a register byte. (Look at the instruction encodings.)
+
    needvalC = needValC(f_icode);    // ? // needvalC = ...... call your needValC
    needregId = needRegIds(f_icode); // needregId = .... call your need regId function
 
@@ -264,5 +265,5 @@ uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegIds)
       valC[i] = mem->getByte(f_pc + i, hasError);
    }
 
-   return Tools::buildLong(valC);
+   
 }
