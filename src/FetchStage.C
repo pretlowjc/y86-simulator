@@ -62,14 +62,27 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // as initialized to Status::SAOK
 
    /*
-   Lab7 Stuff
-   
-   getRegIds - if need_regId is true, this method is used to read the register byte and initialize rA and rB 
-   to the appropriate bits in the register byte.  These are then used as input to the D register.
+      Lab7 Stuff
+
+      getRegIds - if need_regId is true, this method is used to read the register byte and initialize rA and rB
+      to the appropriate bits in the register byte.  These are then used as input to the D register.
    */
    if (needRegIds(f_icode))
    {
       getRegIds(f_pc, &rA, &rB);
+   }
+
+   /*
+      Lab7 Stuff
+
+      buildValC -  if need_valC is true, this method reads 8 bytes from memory and builds and returns the valC that is then
+      used as input to the D register. (Do not use getLong to read those 8 bytes.  This requires that the immediate value be
+      aligned in memory, which it may not be. Do make use of your Tools class to build the 64 bit valC from the 8 bytes.)
+   */
+   if (needValC(f_icode))
+   {
+      // build valC here...
+      valC = buildValC(f_pc, needRegIds(f_icode));
    }
 
    // TODO
@@ -218,20 +231,38 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
 }
 /*
    if need_regID is true...
-   
-   Are we calling this method in doClockLow? 
-   
+
+   Are we calling this method in doClockLow?
+
    This method is used to read the register byte and initialize
    rA and rB to the appropriate bits in the register byte. These are then used as input
    to the D register.
 */
-void FetchStage::getRegIds(int32_t f_pc, uint64_t * rA, uint64_t * rB)
+void FetchStage::getRegIds(int32_t f_pc, uint64_t *rA, uint64_t *rB)
 {
    bool hasError;
-   Memory * mem = Memory::getInstance();
    uint64_t r_byte = mem->getByte(f_pc + 1, hasError);
    uint64_t rA_bits = Tools::getBits(r_byte, 4, 7);
    uint64_t rB_bits = Tools::getBits(r_byte, 0, 3);
    *rA = rA_bits;
    *rB = rB_bits;
+}
+
+uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegIds)
+{
+   bool hasError;
+   uint8_t valC[8];
+
+   f_pc++;
+   if (needRegIds)
+   {
+      f_pc += 1;
+   }
+
+   for (int i = 0; i < 8; i++)
+   {
+      valC[i] = mem->getByte(f_pc + i, hasError);
+   }
+
+   return Tools::buildLong(valC);
 }

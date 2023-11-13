@@ -19,8 +19,8 @@ private:
    bool needValC(uint64_t f_icode);
    uint64_t selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg);
    uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
-   void FetchStage::getRegIds(int32_t f_pc, uint64_t * rA, uint64_t * rB);;
-
+   void FetchStage::getRegIds(int32_t f_pc, uint64_t * rA, uint64_t * rB);
+   uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegId);
 
 public :
        // These are the only methods called outside of the class
