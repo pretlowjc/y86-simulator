@@ -16,7 +16,7 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 {
 
 	PipeReg *ereg = pipeRegs->getExecuteReg();
-	PipeReg *mreg = pipeRegs -> getMemoryReg();
+	PipeReg *mreg = pipeRegs->getMemoryReg();
 	uint64_t stat = ereg->get(E_STAT);
 	uint64_t icode = ereg->get(E_ICODE);
 	// uint64_t ifun = ereg -> get(E_IFUN);
@@ -39,9 +39,8 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeReg *mreg = pipeRegs -> getMemoryReg();
-	mreg -> normal();
-
+	PipeReg *mreg = pipeRegs->getMemoryReg();
+	mreg->normal();
 }
 
 void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
@@ -50,12 +49,13 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 {
 	reg->set(M_STAT, stat);
 	reg->set(M_ICODE, icode);
-	// reg->set(E_IFUN, ifun);
-	reg->set(M_VALE, 0);
+
+	// Add a statement to set e_valE to E_valC. The value of e_valE is then stored in M_valE.
+	reg->set(e_valE, E_VALC);
+	reg->set(M_VALE, e_valE);
+
 	reg->set(M_VALA, 0);
-	 reg->set(M_CND, e_cnd);
+	reg->set(M_CND, e_cnd);
 	reg->set(M_DSTE, dstE);
 	reg->set(M_DSTM, dstM);
-	// reg->set(M_SRCA, srcA);
-	// reg->set(M_SRCB,srcB);
 }
