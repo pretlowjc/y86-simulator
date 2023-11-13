@@ -43,12 +43,13 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	// uint64_t numFields = dreg -> get(D_NUMFIELDS);
 
 	// maybe pass numfields.
-	
-	
-	
+	srcA = setSrcA(ereg, icode, d_srcA, rA, RegisterFile::rsp);
+	srcB = setSrcB(ereg, icode, d_srcB, rB, RegisterFile::rsp);
+	dstE = setDstE(ereg, icode, dstE, rB, RegisterFile::rsp),
+	dstM = setDstM(ereg, icode, dstM, rA);
 	SelFwdA(dreg, d_rvalA);
 	FwdB(dreg,d_rvalB);
-	setEInput(ereg, stat, icode, ifun, valC, valA, valB, setDstE(ereg, icode, dstE, rB, RegisterFile::rsp), setDstM(ereg, icode, dstM, rA), setSrcA(ereg, icode, d_srcA, rA, RegisterFile::rsp), setSrcB(ereg, icode, d_srcB, rB, RegisterFile::rsp));
+	setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, srcA, srcB);
 
 	return false;
 }
