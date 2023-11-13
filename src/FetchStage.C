@@ -61,6 +61,17 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
    // icode is Instruction::IHALT; otherwise leave it is
    // as initialized to Status::SAOK
 
+   /*
+   Lab7 Stuff
+   
+   getRegIds - if need_regId is true, this method is used to read the register byte and initialize rA and rB 
+   to the appropriate bits in the register byte.  These are then used as input to the D register.
+   */
+   if (needRegIds(f_icode))
+   {
+      getRegIds(f_pc, &rA, &rB);
+   }
+
    // TODO
    // In order to calculate the address of the next instruction,
    // you'll need to know whether this current instruction has an
@@ -171,7 +182,6 @@ bool FetchStage::needValC(uint64_t f_icode)
 //      #1 f_icode in { IJXX, ICALL } : f_valC;
 //      #2 1: f_valP;
 //  ];
-
 uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
 {
 
@@ -205,4 +215,23 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
       f_pc += 8;
 
    return f_pc += 1;
+}
+/*
+   if need_regID is true...
+   
+   Are we calling this method in doClockLow? 
+   
+   This method is used to read the register byte and initialize
+   rA and rB to the appropriate bits in the register byte. These are then used as input
+   to the D register.
+*/
+void FetchStage::getRegIds(int32_t f_pc, uint64_t * rA, uint64_t * rB)
+{
+   bool hasError;
+   Memory * mem = Memory::getInstance();
+   uint64_t r_byte = mem->getByte(f_pc + 1, hasError);
+   uint64_t rA_bits = Tools::getBits(r_byte, 4, 7);
+   uint64_t rB_bits = Tools::getBits(r_byte, 0, 3);
+   *rA = rA_bits;
+   *rB = rB_bits;
 }
