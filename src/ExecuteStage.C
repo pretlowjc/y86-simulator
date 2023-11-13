@@ -51,7 +51,7 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 	reg->set(M_ICODE, icode);
 
 	// Add a statement to set e_valE to E_valC. The value of e_valE is then stored in M_valE.
-	reg->set(e_valE, E_VALC);
+	// reg->set(e_valE, E_VALC);
 	reg->set(M_VALE, e_valE);
 
 	reg->set(M_VALA, 0);

@@ -265,5 +265,5 @@ uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegIds)
       valC[i] = mem->getByte(f_pc + i, hasError);
    }
 
-   
+   return Tools::buildLong(valC);
 }
