@@ -2,6 +2,7 @@
 #include "ExecuteStage.h"
 #include "E.h"
 #include "M.h"
+#include "Tools.h"
 #include "Instruction.h"
 #include "ConditionCodes.h"
 
@@ -25,17 +26,21 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t valE = ereg->get(E_VALC);
 	uint64_t valA = ereg->get(E_VALA);
 	uint64_t valB = ereg->get(E_VALB);
+	uint64_t ifun = ereg->get(E_IFUN);
+
 	uint64_t e_cnd = 0;
+
 	// call aluA method.
 	uint64_t e_aluA = aluA(icode, valA, valE);
+
 	// call aluB method.
 	uint64_t e_aluB = aluB(icode, valB);
-	// call CC method.
-	uint64_t e_Ifun = alufun(icode, E_IFUN);
-	uint64_t e_CC = cc(icode, e_Ifun);
+
+	// call alufun method.
+	uint64_t e_alufun = alufun(icode, ifun);
 
 	// call ALU method.
-	uint64_t e_ALU = alu(e_Ifun, e_aluA, e_aluB, e_CC);
+	valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
 
 	setMInput(mreg, stat, icode, e_cnd, valE, valA, dstE, dstM);
 	return false;
@@ -125,21 +130,33 @@ uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
 	return dstE;
 }
 
-uint64_t ExecuteStage::cc(uint64_t icode, uint64_t ifun)
+uint64_t ExecuteStage::cc(uint64_t value, bool overflow, uint64_t aluA, uint64_t aluB)
 {
 	/*
 		If the set_cc component returns true then the CC component
 		will be used to set the condition codes (in the ConditionCodes)
-		class) to 0 or 1.*/
-	// first attempt
-	// bool hasError = false;
-	// if(set_cc(icode)){
-	// 	ConditionCodes::setConditionCode(set_cc(icode), ConditionCodes::OF, hasError);
-		
-		
-	// }
-	if (set_cc(icode)) return e_Cnd == 1; // maybe e_Cnd is the component.
-	return e_Cnd;
+		class) to 0 or 1.
+	*/
+	bool error;
+
+	// set condition codes to 0 or 1 using the ConditionCodes class.
+	ConditionCodes *condcodes = ConditionCodes::getInstance();
+	// set zero flag if zero?
+	if (value == 0)
+	{
+		condcodes->setConditionCode(1, ConditionCodes::ZF, error);
+	}
+	// set sign flag, use sign from tools class somehow, Tools::sign(___)
+	if (Tools::sign(value))
+	{
+		condcodes->setConditionCode(1, ConditionCodes::SF, error);
+	}
+
+	// set overflow flag if overflow? use overflow class from tools class, Tools::overflow(___,____)
+	if (overflow)
+	{
+		condcodes->setConditionCode(1, ConditionCodes::OF, error);
+	}
 }
 
 uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool set_cc)
@@ -155,23 +172,33 @@ uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool s
 		NOTE: I have already added the other function calls. All that needs
 		to be done is cc and alu methods and add their function calls...I think...
 	*/
-	if (alufun == Instruction::ADDQ) { // if add we add aluA and aluB
-		return aluA + aluB;
+	bool overflow = false;
+	uint64_t value;
+	// if add we add aluA and aluB
+	if (alufun == Instruction::ADDQ)
+	{
+		overflow = Tools::addOverflow(aluA, aluB);
+		return value = aluA + aluB;
 	}
-
-	if (alufun == Instruction::ANDQ){ // if and we and aluA and aluB
-		return aluA & aluB;
+	// if and we and aluA and aluB
+	if (alufun == Instruction::ANDQ)
+	{
+		return value = aluA & aluB;
 	}
-
-	if (alufun == Instruction::XORQ){// if xor we ^ aluA and aluB
-		return aluA ^ aluB;
+	// if xor we ^ aluA and aluB
+	if (alufun == Instruction::XORQ)
+	{
+		return value = aluA ^ aluB;
 	}
-
-	if (alufun == Instruction::SUBQ){// if sub aluA - aluB
-		return (aluA + (~aluB));
+	// if sub aluA - aluB
+	if (alufun == Instruction::SUBQ)
+	{
+		overflow = Tools::subOverflow(aluA, aluB);
+		return value = aluA - aluB;
 	}
-
-
-
-
+	// if set_cc component returns true then use cc component to set condition codes.
+	if (set_cc)
+	{
+		cc(value, overflow, aluA, aluB);
+	}
 }
