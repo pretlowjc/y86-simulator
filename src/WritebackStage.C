@@ -41,5 +41,6 @@ void WritebackStage::doClockHigh(PipeRegArray *pipeRegs)
    bool error;
    PipeReg *wreg = pipeRegs->getWritebackReg();
    uint64_t value = wreg->get(W_VALE);
-   rf->writeRegister(value, W_DSTE, error);
+   uint64_t dst = wreg->get(W_DSTE);
+   rf->writeRegister(value, dst, error);
 }

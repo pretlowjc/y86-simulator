@@ -120,80 +120,86 @@ bool Loader::openFile()
 bool Loader::load()
 {
 
-if (!openFile()) return false;
-bool error = false;
+   if (!openFile())
+      return false;
+   bool error = false;
 
    std::string line;
    int lineNumber = 1; // needed if an error is found
    while (getline(inf, line))
    {
-      
+
       String inputLine(line);
-   		if(isDataRecord(inputLine) && badData(inputLine)){	
-			return printErrMsg(Loader::baddata,lineNumber,&inputLine);
-		}
-		  
-		else if (!(isDataRecord(inputLine)) && badComment(inputLine)){   
-			return printErrMsg(Loader::badcomment,lineNumber, &inputLine); 
-		}
-		uint32_t address = inputLine.convert2Hex(addrbegin, addrend-addrbegin + 1, error);
-		int i = databegin;
+      if (isDataRecord(inputLine) && badData(inputLine))
+      {
+         return printErrMsg(Loader::baddata, lineNumber, &inputLine);
+      }
 
-		while (inputLine.isHex(i,2,error)){
-			uint64_t byte = inputLine.convert2Hex(i,2, error);
-        	mem->putByte(byte, address, error);
-			 lastAddress = address;
-			 address++;
-			 i+=2;
+      else if (!(isDataRecord(inputLine)) && badComment(inputLine))
+      {
+         return printErrMsg(Loader::badcomment, lineNumber, &inputLine);
+      }
+      uint32_t address = inputLine.convert2Hex(addrbegin, addrend - addrbegin + 1, error);
+      int i = databegin;
 
-        }
+      while (inputLine.isHex(i, 2, error))
+      {
+         uint64_t byte = inputLine.convert2Hex(i, 2, error);
+         mem->putByte(byte, address, error);
+         lastAddress = address;
+         address++;
+         i += 2;
+      }
       lineNumber++;
-
-     
    }
    return true;
 }
-bool Loader::badComment(String inputLine){
-	bool hasError = false;
-	if (!inputLine.isRepeatingChar(' ', 0, comment-1, hasError)) return true;
-	if (!inputLine.isChar('|', comment, hasError)) return true;
+bool Loader::badComment(String inputLine)
+{
+   bool hasError = false;
+   if (!inputLine.isRepeatingChar(' ', 0, comment - 1, hasError))
+      return true;
+   if (!inputLine.isChar('|', comment, hasError))
+      return true;
 }
 
-bool Loader::badData(String inputLine){
-	bool error = false;		  
-	int i = databegin; 
-	int numofByte = 0;
-		while(inputLine.isHex(i,2,error)) {
-			i+=2;
-			numofByte++;
-		}
-	if (!inputLine.isRepeatingChar(' ', i, comment - i, error)) return true;
-	if (!inputLine.isChar('|', comment, error)) return true;	
-	if (!inputLine.isHex(addrbegin,addrend - addrbegin + 1,error)) return true;
-	if (!inputLine.isChar(':',5, error)) return true;
-	if (!inputLine.isChar(' ', addrend + 2, error)) return true;
-	if (i > databegin && (inputLine.isHex(addrbegin,addrend,error))) return true;
-	if (!inputLine.isChar(' ', comment-1, error)) return true;
-	int64_t addy = inputLine.convert2Hex(addrbegin, 3, error);
-	if (addy <= lastAddress) return true;
-	if(addy + numofByte > Memory::size) return true;
-	return false;
+bool Loader::badData(String inputLine)
+{
+   bool error = false;
+   int i = databegin;
+   int numofByte = 0;
+   while (inputLine.isHex(i, 2, error))
+   {
+      i += 2;
+      numofByte++;
+   }
+   if (!inputLine.isRepeatingChar(' ', i, comment - i, error))
+      return true;
+   if (!inputLine.isChar('|', comment, error))
+      return true;
+   if (!inputLine.isHex(addrbegin, addrend - addrbegin + 1, error))
+      return true;
+   if (!inputLine.isChar(':', 5, error))
+      return true;
+   if (!inputLine.isChar(' ', addrend + 2, error))
+      return true;
+   if (i > databegin && (inputLine.isHex(addrbegin, addrend, error)))
+      return true;
+   if (!inputLine.isChar(' ', comment - 1, error))
+      return true;
+   int64_t addy = inputLine.convert2Hex(addrbegin, 3, error);
+   if (addy <= lastAddress)
+      return true;
+   if (addy + numofByte > Memory::size)
+      return true;
+   return false;
 }
 
-
-bool Loader::isDataRecord(String inputLine){
-	bool error = false;
-	if(!inputLine.isSubString((const char *)"0x", 0, error)) return false;
-	else return true;
+bool Loader::isDataRecord(String inputLine)
+{
+   bool error = false;
+   if (!inputLine.isSubString((const char *)"0x", 0, error))
+      return false;
+   else
+      return true;
 }
-
-
-
-
-	
-
-
-
-
-	
-

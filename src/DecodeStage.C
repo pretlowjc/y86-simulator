@@ -16,10 +16,9 @@
  */
 bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 {
-	bool hasError = false;
 	PipeReg *dreg = pipeRegs->getDecodeReg();
 	PipeReg *ereg = pipeRegs->getExecuteReg();
-	
+
 	uint64_t stat = dreg->get(D_STAT);
 	uint64_t icode = dreg->get(D_ICODE);
 	uint64_t ifun = dreg->get(D_IFUN);
@@ -34,21 +33,14 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t srcB = RegisterFile::RNONE;
 	uint64_t d_rvalA = 0;
 	uint64_t d_rvalB = 0;
-	
 
-
-	
-	// During compilation, numFields is an unused variable.
-	// I don't we need it... -Justin
-	// uint64_t numFields = dreg -> get(D_NUMFIELDS);
-
-	// maybe pass numfields.
 	srcA = setSrcA(ereg, icode, d_srcA, rA, RegisterFile::rsp);
 	srcB = setSrcB(ereg, icode, d_srcB, rB, RegisterFile::rsp);
-	dstE = setDstE(ereg, icode, dstE, rB, RegisterFile::rsp),
+	dstE = setDstE(ereg, icode, dstE, rB, RegisterFile::rsp);
 	dstM = setDstM(ereg, icode, dstM, rA);
+
 	SelFwdA(dreg, d_rvalA);
-	FwdB(dreg,d_rvalB);
+	FwdB(dreg, d_rvalB);
 	setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, srcA, srcB);
 
 	return false;
@@ -63,10 +55,9 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void DecodeStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-	PipeReg *ereg = pipeRegs -> getExecuteReg();
+	PipeReg *ereg = pipeRegs->getExecuteReg();
 
-	ereg -> normal();
-
+	ereg->normal();
 }
 
 void DecodeStage::setEInput(PipeReg *ereg, uint64_t stat, uint64_t icode,
@@ -77,7 +68,7 @@ void DecodeStage::setEInput(PipeReg *ereg, uint64_t stat, uint64_t icode,
 	ereg->set(E_ICODE, icode);
 	ereg->set(E_IFUN, ifun);
 	ereg->set(E_VALC, valC);
-	ereg->set(E_VALA, valA );
+	ereg->set(E_VALA, valA);
 	ereg->set(E_VALB, valB);
 	ereg->set(E_DSTE, dstE);
 	ereg->set(E_DSTM, dstM);
@@ -85,38 +76,79 @@ void DecodeStage::setEInput(PipeReg *ereg, uint64_t stat, uint64_t icode,
 	ereg->set(E_SRCB, srcB);
 }
 
-uint64_t DecodeStage::setSrcA(PipeReg *ereg, uint64_t D_icode, uint64_t d_srcA, uint64_t D_rA, uint64_t RSP) {
-	if(D_icode == Instruction::IOPQ || Instruction::IRMMOVQ || Instruction::IMRMOVQ) return d_srcA = D_rA;
-	if(D_icode == Instruction::IPOPQ || Instruction::IRET) return d_srcA = RegisterFile::rsp;
-	return RegisterFile::RNONE;
+uint64_t DecodeStage::setSrcA(PipeReg *ereg, uint64_t D_icode, uint64_t d_srcA, uint64_t D_rA, uint64_t RSP)
+{
+	switch (D_icode)
+	{
+	case Instruction::IRRMOVQ:
+	case Instruction::IRMMOVQ:
+	case Instruction::IOPQ:
+	case Instruction::IPUSHQ:
+		return d_srcA = D_rA;
+	case Instruction::IPOPQ:
+	case Instruction::IRET:
+		return d_srcA = RegisterFile::rsp;
+	default:
+		return RegisterFile::RNONE;
+	}
 }
 
-uint64_t DecodeStage::setSrcB(PipeReg *ereg, uint64_t D_icode, uint64_t d_srcB, uint64_t D_rB, uint64_t RSP){
-	if(D_icode == Instruction::IOPQ || D_icode == Instruction::IRMMOVQ || D_icode == Instruction::IMRMOVQ) return d_srcB = D_rB;
-	if(D_icode == Instruction::IPUSHQ || D_icode == Instruction::IPOPQ || D_icode == Instruction::ICALL || D_icode == Instruction::IRET) return d_srcB = RSP;
-	return RegisterFile::RNONE;
-
+uint64_t DecodeStage::setSrcB(PipeReg *ereg, uint64_t D_icode, uint64_t d_srcB, uint64_t D_rB, uint64_t RSP)
+{
+	switch (D_icode)
+	{
+	case Instruction::IOPQ:
+	case Instruction::IRMMOVQ:
+	case Instruction::IMRMOVQ:
+		return d_srcB = D_rB;
+	case Instruction::IPUSHQ:
+	case Instruction::IPOPQ:
+	case Instruction::ICALL:
+	case Instruction::IRET:
+		return d_srcB = RegisterFile::rsp;
+	default:
+		return RegisterFile::RNONE;
+	}
 }
 
-uint64_t DecodeStage::setDstE(PipeReg *ereg, uint64_t D_icode, uint64_t d_dstE, uint64_t D_rB, uint64_t RSP){
-	if(D_icode == Instruction::IRMMOVQ || D_icode == Instruction::IIRMOVQ || D_icode == Instruction::IOPQ) return d_dstE = D_rB;
-	if(D_icode == Instruction::IPUSHQ || D_icode == Instruction:: IPOPQ || D_icode ==  Instruction::ICALL || D_icode == Instruction::IRET) return d_dstE = RSP;
-	return RegisterFile::RNONE;
+uint64_t DecodeStage::setDstE(PipeReg *ereg, uint64_t D_icode, uint64_t d_dstE, uint64_t D_rB, uint64_t RSP)
+{
+	switch (D_icode)
+	{
+	case Instruction::IRRMOVQ:
+	case Instruction::IIRMOVQ:
+	case Instruction::IOPQ:
+		return d_dstE = D_rB;
+	case Instruction::IPUSHQ:
+	case Instruction::IPOPQ:
+	case Instruction::ICALL:
+	case Instruction::IRET:
+		return d_dstE = RegisterFile::rsp;
+	default:
+		return RegisterFile::RNONE;
+	}
 }
 
-uint64_t DecodeStage::setDstM(PipeReg *ereg, uint64_t D_icode, uint64_t d_dstM, uint64_t D_rA){
-	if(D_icode == Instruction::IMRMOVQ || D_icode == Instruction::IPOPQ) return d_dstM = D_rA;
-	return RegisterFile::RNONE;
+uint64_t DecodeStage::setDstM(PipeReg *ereg, uint64_t D_icode, uint64_t d_dstM, uint64_t D_rA)
+{
+	switch (D_icode)
+	{
+	case Instruction::IMRMOVQ:
+	case Instruction::IPOPQ:
+		return d_dstM = D_rA;
+	default:
+		return RegisterFile::RNONE;
+	}
 }
 
-uint64_t DecodeStage::SelFwdA(PipeReg *dreg, uint64_t d_rvalA){
+uint64_t DecodeStage::SelFwdA(PipeReg *dreg, uint64_t d_rvalA)
+{
 	bool hasError = false;
-	return d_rvalA = rf->readRegister(d_srcA, hasError);//-- current option.
-	
+	return d_rvalA = rf->readRegister(d_srcA, hasError); //-- current option.
 }
 
-uint64_t DecodeStage::FwdB(PipeReg *dreg, uint64_t d_rvalB){
+uint64_t DecodeStage::FwdB(PipeReg *dreg, uint64_t d_rvalB)
+{
 	bool hasError = false;
-	return d_rvalB = rf -> readRegister(d_srcB, hasError);
+	return d_rvalB = rf->readRegister(d_srcB, hasError);
 }
-
