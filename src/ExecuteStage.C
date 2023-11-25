@@ -27,11 +27,12 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t valA = ereg->get(E_VALA);
 	uint64_t valB = ereg->get(E_VALB);
 	uint64_t ifun = ereg->get(E_IFUN);
+	uint64_t valC = ereg->get(E_VALC);
 
 	uint64_t e_cnd = 0;
 
 	// call aluA method.
-	uint64_t e_aluA = aluA(icode, valA, valE);
+	uint64_t e_aluA = aluA(icode, valC, valA);
 
 	// call aluB method.
 	uint64_t e_aluB = aluB(icode, valB);
@@ -73,7 +74,7 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 }
 
 // would returning -8 cause issues since I am using an uint64_t??
-uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valE, uint64_t valA)
+uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valC, uint64_t valA)
 {
 	if (e_icode == Instruction::IRRMOVQ || e_icode == Instruction::IOPQ)
 	{
@@ -81,7 +82,7 @@ uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valE, uint64_t valA)
 	}
 	if (e_icode == Instruction::IIRMOVQ || e_icode == Instruction::IRMMOVQ || e_icode == Instruction::IMRMOVQ)
 	{
-		return valE;
+		return valC;
 	}
 	if (e_icode == Instruction::ICALL || e_icode == Instruction::IPUSHQ)
 	{
