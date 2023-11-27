@@ -134,19 +134,11 @@ uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
 
 uint64_t ExecuteStage::cc(bool zeroflag, bool signflag, bool overflow)
 {
-	/*
-		If the set_cc component returns true then the CC component
-		will be used to set the condition codes (in the ConditionCodes)
-		class) to 0 or 1.
-	*/
 	bool error;
-
-	// set condition codes to 0 or 1 using the ConditionCodes class.
 	ConditionCodes *condcodes = ConditionCodes::getInstance();
 	condcodes->setConditionCode(zeroflag, ConditionCodes::ZF, error);
 	condcodes->setConditionCode(signflag, ConditionCodes::SF, error);
 	condcodes->setConditionCode(overflow, ConditionCodes::OF, error);
-	// set zero flag if zero?
 }
 
 uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool set_cc)
