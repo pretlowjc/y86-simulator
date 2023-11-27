@@ -23,7 +23,6 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t icode = ereg->get(E_ICODE);
 	uint64_t dstE = ereg->get(E_DSTE);
 	uint64_t dstM = ereg->get(E_DSTM);
-	uint64_t valE = ereg->get(E_VALC);
 	uint64_t valA = ereg->get(E_VALA);
 	uint64_t valB = ereg->get(E_VALB);
 	uint64_t ifun = ereg->get(E_IFUN);
@@ -32,7 +31,7 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t e_cnd = 0;
 
 	// call aluA method.
-	uint64_t e_aluA = aluA(icode, valC, valA);
+	uint64_t e_aluA = aluA(icode, valA, valC);
 
 	// call aluB method.
 	uint64_t e_aluB = aluB(icode, valB);
@@ -41,7 +40,7 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t e_alufun = alufun(icode, ifun);
 
 	// call ALU method.
-	valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
+	uint64_t valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
 
 	setMInput(mreg, stat, icode, e_cnd, valE, valA, dstE, dstM);
 	return false;
@@ -74,7 +73,7 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 }
 
 // would returning -8 cause issues since I am using an uint64_t??
-uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valC, uint64_t valA)
+uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valA, uint64_t valC)
 {
 	if (e_icode == Instruction::IRRMOVQ || e_icode == Instruction::IOPQ)
 	{
@@ -131,7 +130,7 @@ uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
 	return dstE;
 }
 
-uint64_t ExecuteStage::cc(uint64_t value, bool overflow, uint64_t aluA, uint64_t aluB)
+uint64_t ExecuteStage::cc(bool zeroflag, bool signflag, bool overflow)
 {
 	/*
 		If the set_cc component returns true then the CC component
@@ -142,22 +141,10 @@ uint64_t ExecuteStage::cc(uint64_t value, bool overflow, uint64_t aluA, uint64_t
 
 	// set condition codes to 0 or 1 using the ConditionCodes class.
 	ConditionCodes *condcodes = ConditionCodes::getInstance();
+	condcodes->setConditionCode(zeroflag, ConditionCodes::ZF, error);
+	condcodes->setConditionCode(signflag, ConditionCodes::SF, error);
+	condcodes->setConditionCode(overflow, ConditionCodes::OF, error);
 	// set zero flag if zero?
-	if (value == 0)
-	{
-		condcodes->setConditionCode(1, ConditionCodes::ZF, error);
-	}
-	// set sign flag, use sign from tools class somehow, Tools::sign(___)
-	if (Tools::sign(value))
-	{
-		condcodes->setConditionCode(1, ConditionCodes::SF, error);
-	}
-
-	// set overflow flag if overflow? use overflow class from tools class, Tools::overflow(___,____)
-	if (overflow)
-	{
-		condcodes->setConditionCode(1, ConditionCodes::OF, error);
-	}
 }
 
 uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool set_cc)
@@ -179,27 +166,30 @@ uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool s
 	if (alufun == Instruction::ADDQ)
 	{
 		overflow = Tools::addOverflow(aluA, aluB);
-		return value = aluA + aluB;
+		value = aluA + aluB;
 	}
 	// if and we and aluA and aluB
 	if (alufun == Instruction::ANDQ)
 	{
-		return value = aluA & aluB;
+		value = aluA & aluB;
 	}
 	// if xor we ^ aluA and aluB
 	if (alufun == Instruction::XORQ)
 	{
-		return value = aluA ^ aluB;
+		value = aluA ^ aluB;
 	}
 	// if sub aluA - aluB
 	if (alufun == Instruction::SUBQ)
 	{
 		overflow = Tools::subOverflow(aluA, aluB);
-		return value = aluA - aluB;
+		value = aluB - aluA;
 	}
 	// if set_cc component returns true then use cc component to set condition codes.
 	if (set_cc)
 	{
-		cc(value, overflow, aluA, aluB);
+		bool zeroflag = (value == 0);
+		bool signflag = Tools::sign(value);
+		cc(zeroflag, signflag, overflow);
 	}
+	return value;
 }
