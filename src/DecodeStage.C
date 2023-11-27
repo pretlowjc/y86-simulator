@@ -1,4 +1,5 @@
 #include "PipeRegArray.h"
+#include "Stage.h"
 #include "StageArray.h"
 #include "DecodeStage.h"
 #include "D.h"
@@ -9,6 +10,7 @@
 #include "Instruction.h"
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
+
 
 /*
  * doClockLow
@@ -49,8 +51,8 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t d_rvalA = 0;
 	uint64_t d_rvalB = 0;
 
-	valA = SelFwdA(d_srcA);
-	valB = FwdB(d_srcB);
+	valA = SelFwdA(wreg, mreg, d_srcA);
+	valB = FwdB(wreg, mreg, d_srcB);
 
 	setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, d_srcA, d_srcB);
 
@@ -152,32 +154,36 @@ uint64_t DecodeStage::setDstM(uint64_t D_icode, uint64_t D_rA)
 	}
 }
 
-uint64_t DecodeStage::SelFwdA(uint64_t d_srcA)
+uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 {
 	bool hasError = false;
 	uint64_t d_rvalA = 0;
-	// if (d_srcA == e_dstE)
-	// {
-	// 	uint64_t e_valE = ereg->get(E_VALC);
-	// 	return e_valE;
-	// }
-	// if (d_srcA == M_dstE)
-	// {
-	// 	uint64_t M_valE = mreg->get(M_VALE);
-	// 	return M_valE;
-	// }
-	// if (d_srcA == W_dstE)
-	// {
-	// 	uint64_t W_valE = wreg->get(W_VALE);
-	// 	return W_valE;
-	// }
-	return d_rvalA = rf->readRegister(d_srcA, hasError); //-- current option.
+	if (d_srcA == Stage::e_dstE)
+	{
+		return Stage::e_valE;
+	}
+	if (d_srcA == mreg->get(M_DSTE))
+	{
+		uint64_t M_valE = mreg->get(M_VALE);
+		return M_valE;
+	}
+	if (d_srcA == wreg->get(W_DSTE))
+	{
+		uint64_t W_valE = wreg->get(W_VALE);
+		return W_valE;
+	}
+
+		return d_rvalA = rf->readRegister(d_srcA, hasError); //-- current option.
 }
 
-uint64_t DecodeStage::FwdB(uint64_t d_srcB)
+uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 {
 	bool hasError = false;
 	uint64_t d_rvalB = 0;
+
+	if(d_srcB == Stage::e_dstE) return Stage::e_valE;
+	if(d_srcB == mreg -> get(M_DSTE)) return mreg -> get(M_VALE);
+	if(d_srcB == wreg -> get(W_DSTE)) return wreg -> get(W_VALE);
 
 	return d_rvalB = rf->readRegister(d_srcB, hasError);
 }

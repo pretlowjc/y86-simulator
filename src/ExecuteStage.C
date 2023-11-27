@@ -1,4 +1,5 @@
 #include "PipeRegArray.h"
+#include "Stage.h"
 #include "ExecuteStage.h"
 #include "E.h"
 #include "M.h"
