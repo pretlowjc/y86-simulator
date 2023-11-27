@@ -41,9 +41,10 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t e_alufun = alufun(icode, ifun);
 
 	// call ALU method.
-	uint64_t valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
+	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
+	Stage::e_dstE = dstE;
 
-	setMInput(mreg, stat, icode, e_cnd, valE, valA, dstE, dstM);
+	setMInput(mreg, stat, icode, e_cnd, Stage::e_valE, valA, dstE, dstM);
 	return false;
 }
 

@@ -11,7 +11,6 @@
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
 
-
 /*
  * doClockLow
  *
@@ -158,6 +157,7 @@ uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 {
 	bool hasError = false;
 	uint64_t d_rvalA = 0;
+
 	if (d_srcA == Stage::e_dstE)
 	{
 		return Stage::e_valE;
@@ -173,7 +173,7 @@ uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 		return W_valE;
 	}
 
-		return d_rvalA = rf->readRegister(d_srcA, hasError); //-- current option.
+	return d_rvalA = rf->readRegister(d_srcA, hasError); //-- current option.
 }
 
 uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
@@ -181,9 +181,12 @@ uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 	bool hasError = false;
 	uint64_t d_rvalB = 0;
 
-	if(d_srcB == Stage::e_dstE) return Stage::e_valE;
-	if(d_srcB == mreg -> get(M_DSTE)) return mreg -> get(M_VALE);
-	if(d_srcB == wreg -> get(W_DSTE)) return wreg -> get(W_VALE);
+	if (d_srcB == Stage::e_dstE)
+		return Stage::e_valE;
+	if (d_srcB == mreg->get(M_DSTE))
+		return mreg->get(M_VALE);
+	if (d_srcB == wreg->get(W_DSTE))
+		return wreg->get(W_VALE);
 
 	return d_rvalB = rf->readRegister(d_srcB, hasError);
 }
