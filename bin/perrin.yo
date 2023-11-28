@@ -1,0 +1,60 @@
+                            | # perrin.ys
+                            | 
+                            | # Initialize registers
+0x000: 30f00300000000000000 | irmovq $3, %rax   # %rax = 3
+0x00a: 30f10000000000000000 | irmovq $0, %rcx   # %rcx = 0
+0x014: 30f20200000000000000 | irmovq $2, %rdx   # %rdx = 2
+0x01e: 30f30000000000000000 | irmovq $0, %rbx   # %rbx = 0
+0x028: 30f40000000000000000 | irmovq $0, %rsp   # %rsp = 0
+0x032: 30f50000000000000000 | irmovq $0, %rbp   # %rbp = 0
+0x03c: 30f60000000000000000 | irmovq $0, %rsi   # %rsi = 0
+0x046: 30f70000000000000000 | irmovq $0, %rdi   # %rdi = 0
+0x050: 30f80000000000000000 | irmovq $0, %r8    # %r8  = 0
+0x05a: 30f90000000000000000 | irmovq $0, %r9    # %r9  = 0
+0x064: 30fa0000000000000000 | irmovq $0, %r10   # %r10 = 0
+0x06e: 30fb0000000000000000 | irmovq $0, %r11   # %r11 = 0
+0x078: 30fc0000000000000000 | irmovq $0, %r12   # %r12 = 0
+0x082: 30fd0000000000000000 | irmovq $0, %r13   # %r13 = 0
+0x08c: 30fe0000000000000000 | irmovq $0, %r14   # %r14 = 0
+                            | 
+                            | # Set the next 12 Perrin numbers in registers
+0x096: 6003                 | addq %rax, %rbx   # %rbx = %rax + %rbx = 3 + 0 = 3
+0x098: 30f40200000000000000 | irmovq $2, %rsp   # %rsp = 2
+0x0a2: 6014                 | addq %rcx, %rsp   # %rsp = %rcx + %rsp = 0 + 2 = 2
+0x0a4: 6025                 | addq %rdx, %rbp   # %rbp = %rdx + %rbp = 2 + 0 = 2
+0x0a6: 6046                 | addq %rsp, %rsi   # %rsi = %rsp + %rsi = 2 + 0 = 2
+0x0a8: 6057                 | addq %rbp, %rdi   # %rdi = %rbp + %rdi = 2 + 0 = 2
+0x0aa: 6068                 | addq %rsi, %r8    # %r8  = %rsi + %r8  = 2 + 0 = 2
+0x0ac: 6079                 | addq %rdi, %r9    # %r9  = %rdi + %r9  = 2 + 0 = 2
+0x0ae: 608a                 | addq %r8, %r10    # %r10 = %r8  + %r10 = 2 + 0 = 2
+0x0b0: 609b                 | addq %r9, %r11    # %r11 = %r9  + %r11 = 2 + 0 = 2
+0x0b2: 60ac                 | addq %r10, %r12   # %r12 = %r10 + %r12 = 2 + 0 = 2
+0x0b4: 60bd                 | addq %r11, %r13   # %r13 = %r11 + %r13 = 2 + 0 = 2
+0x0b6: 60ce                 | addq %r12, %r14   # %r14 = %r12 + %r14 = 2 + 0 = 2
+                            | 
+                            | # Reverse the values in the registers
+0x0b8: 30f40f00000000000000 | irmovq $15, %rsp  # %rsp = 15
+0x0c2: 61e4                 | subq %r14, %rsp   # %rsp = %rsp - %r14 = 15 - 2 = 13
+0x0c4: 30f50e00000000000000 | irmovq $14, %rbp  # %rbp = 14
+0x0ce: 61d5                 | subq %r13, %rbp   # %rbp = %rbp - %r13 = 14 - 2 = 12
+0x0d0: 30f60d00000000000000 | irmovq $13, %rsi  # %rsi = 13
+0x0da: 61c6                 | subq %r12, %rsi   # %rsi = %rsi - %r12 = 13 - 2 = 11
+0x0dc: 30f70c00000000000000 | irmovq $12, %rdi  # %rdi = 12
+0x0e6: 61b7                 | subq %r11, %rdi   # %rdi = %rdi - %r11 = 12 - 2 = 10
+0x0e8: 30f80b00000000000000 | irmovq $11, %r8   # %r8  = 11
+0x0f2: 61a8                 | subq %r10, %r8    # %r8  = %r8 - %r10 = 11 - 2 = 9
+0x0f4: 30f90a00000000000000 | irmovq $10, %r9   # %r9  = 10
+0x0fe: 6199                 | subq %r9, %r9     # %r9  = %r9 - %r9 = 10 - 0 = 10
+0x100: 30fa0900000000000000 | irmovq $9, %r10   # %r10 = 9
+0x10a: 618a                 | subq %r8, %r10    # %r10 = %r10 - %r8 = 9 - 9 = 0
+0x10c: 30fb0800000000000000 | irmovq $8, %r11   # %r11 = 8
+0x116: 617b                 | subq %rdi, %r11   # %r11 = %r11 - %rdi = 8 - 10 = -2
+0x118: 30fc0700000000000000 | irmovq $7, %r12   # %r12 = 7
+0x122: 616c                 | subq %rsi, %r12   # %r12 = %r12 - %rsi = 7 - 11 = -4
+0x124: 30fd0600000000000000 | irmovq $6, %r13   # %r13 = 6
+0x12e: 615d                 | subq %rbp, %r13   # %r13 = %r13 - %rbp = 6 - 12 = -6
+0x130: 30fe0500000000000000 | irmovq $5, %r14   # %r14 = 5
+0x13a: 614e                 | subq %rsp, %r14   # %r14 = %r14 - %rsp = 5 - 13 = -8
+                            | 
+                            | # Halt
+0x13c: 00                   | halt

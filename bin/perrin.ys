@@ -1,0 +1,37 @@
+# Step 1
+# Initialize registers
+irmovq $3, %rax   # %rax = 3, n = 0
+irmovq $0, %rcx   # %rcx = 0, n = 1
+irmovq $2, %rdx   # %rdx = 2, n = 2
+# Set the remaining to 0
+irmovq $0, %rbx   # %rbx = 0, n = 3
+irmovq $0, %rsp   # %rsp = 0, n = 4
+irmovq $0, %rbp   # %rbp = 0, n = 5
+irmovq $0, %rsi   # %rsi = 0, n = 6
+irmovq $0, %rdi   # %rdi = 0, n = 7
+irmovq $0, %r8    # %r8  = 0, n = 8
+irmovq $0, %r9    # %r9  = 0, n = 9
+irmovq $0, %r10   # %r10 = 0, n = 10
+irmovq $0, %r11   # %r11 = 0, n = 11
+irmovq $0, %r12   # %r12 = 0, n = 12
+irmovq $0, %r13   # %r13 = 0, n = 13
+irmovq $0, %r14   # %r14 = 0, n = 14
+
+# Set the next 12 Perrin numbers in registers
+addq %rax, %rbx   # %rbx = %rax + %rbx = 3 + 0 = 3
+irmovq $2, %rsp   # %rsp = 2
+addq %rcx, %rsp   # %rsp = %rcx + %rsp = 0 + 2 = 2
+addq %rdx, %rbp   # %rbp = %rdx + %rbp = 2 + 0 = 2
+addq %rsp, %rsi   # %rsi = %rsp + %rsi = 2 + 0 = 2
+addq %rbp, %rdi   # %rdi = %rbp + %rdi = 2 + 0 = 2
+addq %rsi, %r8    # %r8  = %rsi + %r8  = 2 + 0 = 2
+addq %rdi, %r9    # %r9  = %rdi + %r9  = 2 + 0 = 2
+addq %r8, %r10    # %r10 = %r8  + %r10 = 2 + 0 = 2
+addq %r9, %r11    # %r11 = %r9  + %r11 = 2 + 0 = 2
+addq %r10, %r12   # %r12 = %r10 + %r12 = 2 + 0 = 2
+addq %r11, %r13   # %r13 = %r11 + %r13 = 2 + 0 = 2
+addq %r12, %r14   # %r14 = %r12 + %r14 = 2 + 0 = 2
+
+# Reverse the values in the registers
+
+halt
