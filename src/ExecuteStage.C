@@ -187,3 +187,46 @@ uint64_t ExecuteStage::alu(uint64_t alufun, uint64_t aluA, uint64_t aluB, bool s
 	}
 	return value;
 }
+
+uint64_t ExecuteStage::cond(uint64_t e_icode, uint64_t ifun)
+{
+	bool error = false;
+
+	ConditionCodes *condcodes = ConditionCodes::getInstance();
+	uint64_t zf = condcodes->getConditionCode(ConditionCodes::ZF, error);
+	uint64_t of = condcodes->getConditionCode(ConditionCodes::OF, error);
+	uint64_t sf = condcodes->getConditionCode(ConditionCodes::SF, error);
+
+	if (e_icode == Instruction::IJXX || e_icode == Instruction::ICMOVXX)
+	{
+		if (ifun == Instruction::UNCOND)
+		{
+			return 1;
+		}
+		if (ifun == Instruction::LESSEQ)
+		{
+			return (sf ^ of) | zf;
+		}
+		if (ifun == Instruction::LESS)
+		{
+			return (sf ^ of);
+		}
+		if (ifun == Instruction::EQUAL)
+		{
+			return zf;
+		}
+		if (ifun == Instruction::NOTEQUAL)
+		{
+			return !zf;
+		}
+		if (ifun == Instruction::GREATER)
+		{
+			return !(sf ^ of) & !zf;
+		}
+		if (ifun == Instruction::GREATEREQ)
+		{
+			return !(sf ^ of);
+		}
+	}
+	return 0;
+}
