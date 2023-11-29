@@ -1,37 +1,47 @@
-# Step 1
 # Initialize registers
-irmovq $3, %rax   # %rax = 3, n = 0
-irmovq $0, %rcx   # %rcx = 0, n = 1
-irmovq $2, %rdx   # %rdx = 2, n = 2
-# Set the remaining to 0
-irmovq $0, %rbx   # %rbx = 0, n = 3
-irmovq $0, %rsp   # %rsp = 0, n = 4
-irmovq $0, %rbp   # %rbp = 0, n = 5
-irmovq $0, %rsi   # %rsi = 0, n = 6
-irmovq $0, %rdi   # %rdi = 0, n = 7
-irmovq $0, %r8    # %r8  = 0, n = 8
-irmovq $0, %r9    # %r9  = 0, n = 9
-irmovq $0, %r10   # %r10 = 0, n = 10
-irmovq $0, %r11   # %r11 = 0, n = 11
-irmovq $0, %r12   # %r12 = 0, n = 12
-irmovq $0, %r13   # %r13 = 0, n = 13
-irmovq $0, %r14   # %r14 = 0, n = 14
+irmovq $3, %rax     # Initialize %rax to 3
+irmovq $0, %rcx     # Initialize %rcx to 0
+irmovq $2, %rdx     # Initialize %rdx to 2
+irmovq $0, %rbx     # Initialize %rbx to 0
+irmovq $0, %rsp     # Initialize %rsp to 0
+irmovq $0, %rbp     # Initialize %rbp to 0
+irmovq $0, %rsi     # Initialize %rsi to 0
+irmovq $0, %rdi     # Initialize %rdi to 0
+irmovq $0, %r8      # Initialize %r8 to 0
+irmovq $0, %r9      # Initialize %r9 to 0
+irmovq $0, %r10     # Initialize %r10 to 0
+irmovq $0, %r11     # Initialize %r11 to 0
+irmovq $0, %r12     # Initialize %r12 to 0
+irmovq $0, %r13     # Initialize %r13 to 0
+irmovq $0, %r14     # Initialize %r14 to 0
 
-# Set the next 12 Perrin numbers in registers
-addq %rax, %rbx   # %rbx = %rax + %rbx = 3 + 0 = 3
-irmovq $2, %rsp   # %rsp = 2
-addq %rcx, %rsp   # %rsp = %rcx + %rsp = 0 + 2 = 2
-addq %rdx, %rbp   # %rbp = %rdx + %rbp = 2 + 0 = 2
-addq %rsp, %rsi   # %rsi = %rsp + %rsi = 2 + 0 = 2
-addq %rbp, %rdi   # %rdi = %rbp + %rdi = 2 + 0 = 2
-addq %rsi, %r8    # %r8  = %rsi + %r8  = 2 + 0 = 2
-addq %rdi, %r9    # %r9  = %rdi + %r9  = 2 + 0 = 2
-addq %r8, %r10    # %r10 = %r8  + %r10 = 2 + 0 = 2
-addq %r9, %r11    # %r11 = %r9  + %r11 = 2 + 0 = 2
-addq %r10, %r12   # %r12 = %r10 + %r12 = 2 + 0 = 2
-addq %r11, %r13   # %r13 = %r11 + %r13 = 2 + 0 = 2
-addq %r12, %r14   # %r14 = %r12 + %r14 = 2 + 0 = 2
+# Calculate the next 12 Perrin numbers
+addq %rax, %rbx
+addq %rcx, %rbx     # Calculate P(3)
+addq %rcx, %rsp
+addq %rdx, %rsp     # Calculate P(4)
+addq %rdx, %rbp
+addq %rbx, %rbp     # Calculate P(5)
+addq %rbx, %rsi
+addq %rsp, %rsi     # Calculate P(6)
+addq %rsp, %rdi
+addq %rbp, %rdi     # Calculate P(7)
+addq %rbp, %r8
+addq %rsi, %r8      # Calculate P(8)
+addq %rsi, %r9
+addq %rdi, %r9      # Calculate P(9)
+addq %rdi, %r10
+addq %r8, %r10      # Calculate P(10)
+addq %r8, %r11
+addq %r9, %r11      # Calculate P(11)
+addq %r9, %r12
+addq %r10, %r12     # Calculate P(12)
+addq %r10, %r13 
+addq %r11, %r13     # Calculate P(13)
+addq %r11, %r14
+addq %r12, %r14     # Calculate P(14)
 
-# Reverse the values in the registers
+# Reverse the registers
 
+# End of program
 halt
