@@ -40,7 +40,8 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 
 	// call ALU method.
 	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
-	Stage::e_dstE = dstE;
+	// Stage::e_dstE = e_dstE(icode, dstE); // Pass with 27 out of 44. Cycle 15, dstE is f, should be 5.
+	Stage::e_dstE = dstE; // Passes with 28 out of 44. Cycle 7, dstE is 1, should be f.
 
 	uint64_t e_cnd = cond(icode, ifun);
 
