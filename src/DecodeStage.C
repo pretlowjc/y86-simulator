@@ -158,6 +158,10 @@ uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 	bool hasError = false;
 	uint64_t d_rvalA = 0;
 
+	if (d_srcA == RegisterFile::RNONE)
+	{
+		return 0;
+	}
 	if (d_srcA == Stage::e_dstE)
 	{
 		return Stage::e_valE;
@@ -180,7 +184,8 @@ uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 {
 	bool hasError = false;
 	uint64_t d_rvalB = 0;
-
+	if (d_srcB == RegisterFile::RNONE)
+		return 0;
 	if (d_srcB == Stage::e_dstE)
 		return Stage::e_valE;
 	if (d_srcB == mreg->get(M_DSTE))
