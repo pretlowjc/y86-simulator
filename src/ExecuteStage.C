@@ -38,14 +38,11 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	// call alufun method.
 	uint64_t e_alufun = alufun(icode, ifun);
 
-	// call ALU method.
 	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
-	// Stage::e_dstE = e_dstE(icode, dstE); // Pass with 27 out of 44. Cycle 15, dstE is f, should be 5.
-	Stage::e_dstE = dstE; // Passes with 28 out of 44. Cycle 7, dstE is 1, should be f.
+	Stage::e_Cnd = cond(icode, ifun);
+	Stage::e_dstE = e_dstE(icode, dstE); // Pass with 27 out of 44. Cycle 15, dstE is f, should be 5.
 
-	uint64_t e_cnd = cond(icode, ifun);
-
-	setMInput(mreg, stat, icode, e_cnd, Stage::e_valE, valA, Stage::e_dstE, dstM);
+	setMInput(mreg, stat, icode, Stage::e_Cnd, Stage::e_valE, valA, Stage::e_dstE, dstM);
 	return false;
 }
 
