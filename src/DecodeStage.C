@@ -184,6 +184,7 @@ uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 {
 	bool hasError = false;
 	uint64_t d_rvalB = 0;
+
 	if (d_srcB == RegisterFile::RNONE)
 		return 0;
 	if (d_srcB == Stage::e_dstE)

@@ -29,8 +29,6 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t ifun = ereg->get(E_IFUN);
 	uint64_t valC = ereg->get(E_VALC);
 
-	uint64_t e_cnd = 0;
-
 	// call aluA method.
 	uint64_t e_aluA = aluA(icode, valA, valC);
 
@@ -44,7 +42,9 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
 	Stage::e_dstE = dstE;
 
-	setMInput(mreg, stat, icode, e_cnd, Stage::e_valE, valA, dstE, dstM);
+	uint64_t e_cnd = cond(icode, ifun);
+
+	setMInput(mreg, stat, icode, e_cnd, Stage::e_valE, valA, Stage::e_dstE, dstM);
 	return false;
 }
 
@@ -193,9 +193,9 @@ uint64_t ExecuteStage::cond(uint64_t e_icode, uint64_t ifun)
 	bool error = false;
 
 	ConditionCodes *condcodes = ConditionCodes::getInstance();
-	uint64_t zf = condcodes->getConditionCode(ConditionCodes::ZF, error);
-	uint64_t of = condcodes->getConditionCode(ConditionCodes::OF, error);
-	uint64_t sf = condcodes->getConditionCode(ConditionCodes::SF, error);
+	uint8_t zf = condcodes->getConditionCode(ConditionCodes::ZF, error);
+	uint8_t of = condcodes->getConditionCode(ConditionCodes::OF, error);
+	uint8_t sf = condcodes->getConditionCode(ConditionCodes::SF, error);
 
 	if (e_icode == Instruction::IJXX || e_icode == Instruction::ICMOVXX)
 	{
