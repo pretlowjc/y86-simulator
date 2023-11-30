@@ -50,7 +50,7 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t d_rvalA = 0;
 	uint64_t d_rvalB = 0;
 
-	valA = SelFwdA(wreg, mreg, d_srcA);
+	valA = SelFwdA(icode, dreg, wreg, mreg, d_srcA);
 	valB = FwdB(wreg, mreg, d_srcB);
 
 	setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, d_srcA, d_srcB);
@@ -153,11 +153,16 @@ uint64_t DecodeStage::setDstM(uint64_t D_icode, uint64_t D_rA)
 	}
 }
 
-uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
+uint64_t DecodeStage::SelFwdA(uint64_t D_icode, PipeReg *dreg, PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 {
 	bool hasError = false;
 	uint64_t d_rvalA = 0;
 
+	if (D_icode == Instruction::ICALL || D_icode == Instruction::IJXX)
+	{
+		uint64_t D_valP = dreg->get(D_VALP);
+		return D_valP;
+	}
 	if (d_srcA == RegisterFile::RNONE)
 	{
 		return 0;
@@ -166,10 +171,19 @@ uint64_t DecodeStage::SelFwdA(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA)
 	{
 		return Stage::e_valE;
 	}
+	if (d_srcA == mreg->get(M_DSTM))
+	{
+		return Stage::m_valM;
+	}
 	if (d_srcA == mreg->get(M_DSTE))
 	{
 		uint64_t M_valE = mreg->get(M_VALE);
 		return M_valE;
+	}
+	if (d_srcA == wreg->get(W_DSTM))
+	{
+		uint64_t W_valM = wreg->get(W_VALM);
+		return W_valM;
 	}
 	if (d_srcA == wreg->get(W_DSTE))
 	{
@@ -186,13 +200,29 @@ uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 	uint64_t d_rvalB = 0;
 
 	if (d_srcB == RegisterFile::RNONE)
+	{
 		return 0;
+	}
 	if (d_srcB == Stage::e_dstE)
+	{
 		return Stage::e_valE;
+	}
+	if (d_srcB == mreg->get(M_DSTM))
+	{
+		return Stage::m_valM;
+	}
 	if (d_srcB == mreg->get(M_DSTE))
+	{
 		return mreg->get(M_VALE);
+	}
+	if (d_srcB == wreg->get(W_DSTM))
+	{
+		return wreg->get(W_VALM);
+	}
 	if (d_srcB == wreg->get(W_DSTE))
+	{
 		return wreg->get(W_VALE);
+	}
 
 	return d_rvalB = rf->readRegister(d_srcB, hasError);
 }

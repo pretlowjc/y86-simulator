@@ -28,7 +28,7 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t dstE = mreg->get(M_DSTE);
 	uint64_t valE = mreg->get(M_VALE);
 	uint64_t valA = mreg->get(M_VALA);
-	m_valM = 0;
+	Stage::m_valM = 0;
 
 	// call mem_addr method to obtain the address.
 	uint64_t address = mem_addr(icode, valE, valA);

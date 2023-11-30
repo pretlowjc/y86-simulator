@@ -14,7 +14,7 @@ private:
    uint64_t setSrcB(uint64_t D_icode, uint64_t D_rB);
    uint64_t setDstE(uint64_t D_icode, uint64_t D_rB);
    uint64_t setDstM(uint64_t D_icode, uint64_t D_rA);
-   uint64_t SelFwdA(PipeReg *wreg, PipeReg *mreg,uint64_t d_srcA);
+   uint64_t SelFwdA(uint64_t D_icode, PipeReg *dreg, PipeReg *wreg, PipeReg *mreg, uint64_t d_srcA);
    uint64_t FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB);
 
 public:
