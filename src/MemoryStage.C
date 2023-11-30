@@ -76,7 +76,7 @@ void MemoryStage::setWInput(PipeReg *wreg, uint64_t stat, uint64_t icode, uint64
 
 uint64_t MemoryStage::mem_addr(uint64_t M_icode, uint64_t M_valE, uint64_t M_valA)
 {
-	if (M_icode == Instruction::IRRMOVQ || M_icode == Instruction::IPUSHQ || M_icode == Instruction::ICALL || M_icode == Instruction::IMRMOVQ)
+	if (M_icode == Instruction::IRMMOVQ || M_icode == Instruction::IPUSHQ || M_icode == Instruction::ICALL || M_icode == Instruction::IMRMOVQ)
 	{
 		return M_valE;
 	}

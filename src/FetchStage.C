@@ -188,7 +188,7 @@ bool FetchStage::needRegIds(uint64_t f_icode)
 //  bool need_valC = f_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL };
 bool FetchStage::needValC(uint64_t f_icode)
 {
-   return (f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction::IJXX || f_icode == Instruction::ICALL);
+   return (f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction::IJXX || f_icode == Instruction::ICALL || f_icode == Instruction::IMRMOVQ);
 }
 
 // predictPC method: inputs are f_icode, f_valC, f_valP
