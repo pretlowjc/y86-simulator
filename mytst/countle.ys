@@ -1,0 +1,51 @@
+.pos 0
+irmovq $0, %rax     	# initialize %rax to 0
+irmovq $nums, %r8   	#initialize another register to the address of the first number
+irmovq $1, %r9
+mrmovq 0(%r8), %r10
+nop
+nop
+nop						#get the number out of memory	#cause the condition codes to be modified based upon value of the number
+irmovq $0, %r11
+cmovle %r10, %r11
+addq %r11, %rax			#add 1 to %rax if number <= 0; otherwise, add 0 to %rax
+mrmovq 8(%r8), %r10
+nop
+nop
+nop
+irmovq $0, %r11
+cmovle %r10, %r11
+addq %r11, %rax
+mrmovq 8(%r8), %r10
+nop
+nop
+nop
+irmovq $0, %r11
+cmovle %r10, %r11
+addq %r11, %rax
+mrmovq 8(%r8), %r10
+nop
+nop
+nop
+irmovq $0, %r11
+cmovle %r10, %r11
+addq %r11, %rax
+mrmovq 8(%r8), %r10
+nop
+nop
+nop
+irmovq $0, %r11
+cmovle %r10, %r11
+addq %r11, %rax
+rmmovq %rax, $result #finally store %rax in memory location result
+halt
+
+        .align 8
+result: .quad 0     #should be 3 at end
+nums:   .quad 11
+        .quad -23
+        .quad 0
+        .quad 15
+        .quad -3
+        .quad 4
+
