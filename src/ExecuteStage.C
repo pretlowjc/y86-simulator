@@ -6,6 +6,7 @@
 #include "Tools.h"
 #include "Instruction.h"
 #include "ConditionCodes.h"
+#include "Status.h"
 
 /*
  * doClockLow
@@ -20,6 +21,7 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 {
 	PipeReg *ereg = pipeRegs->getExecuteReg();
 	PipeReg *mreg = pipeRegs->getMemoryReg();
+	PipeReg *wreg = pipeRegs->getWritebackReg();
 	uint64_t stat = ereg->get(E_STAT);
 	uint64_t icode = ereg->get(E_ICODE);
 	uint64_t dstE = ereg->get(E_DSTE);
@@ -38,10 +40,11 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 	// call alufun method.
 	uint64_t e_alufun = alufun(icode, ifun);
 
-	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(icode));
+	Stage::e_valE = alu(e_alufun, e_aluA, e_aluB, set_cc(ereg, wreg));
 	Stage::e_Cnd = cond(icode, ifun);
 	Stage::e_dstE = e_dstE(icode, dstE); // Pass with 27 out of 44. Cycle 15, dstE is f, should be 5.
-
+	// below I call the new method to set M_bubble
+	M_bubble = calculateControlSignals(wreg);
 	setMInput(mreg, stat, icode, Stage::e_Cnd, Stage::e_valE, valA, Stage::e_dstE, dstM);
 	return false;
 }
@@ -56,7 +59,11 @@ bool ExecuteStage::doClockLow(PipeRegArray *pipeRegs)
 void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 	PipeReg *mreg = pipeRegs->getMemoryReg();
-	mreg->normal();
+	// doclockhigh modifcation
+	if (!M_bubble)
+		mreg->normal();
+
+	((M *)mreg)->bubble();
 }
 
 void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
@@ -72,7 +79,6 @@ void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
 	reg->set(M_DSTM, dstM);
 }
 
-// would returning -8 cause issues since I am using an uint64_t??
 uint64_t ExecuteStage::aluA(uint64_t e_icode, uint64_t valA, uint64_t valC)
 {
 	if (e_icode == Instruction::IRRMOVQ || e_icode == Instruction::IOPQ)
@@ -116,9 +122,13 @@ uint64_t ExecuteStage::alufun(uint64_t e_icode, uint64_t ifun)
 	return Instruction::ADDQ;
 }
 
-bool ExecuteStage::set_cc(uint64_t e_icode)
+// set_CC main method changed, changed the params, to follow HCL control logic
+bool ExecuteStage::set_cc(PipeReg *ereg, PipeReg *wreg)
 {
-	return (e_icode == Instruction::IOPQ);
+	uint64_t W_stat = wreg->get(W_stat);
+	uint64_t E_icode = ereg->get(E_icode);
+
+	return E_icode == Instruction::IOPQ && !Stage::m_stat == Status::SADR && !Stage::m_stat == Status::SINS && !Stage::m_stat == Status::SHLT && !W_stat == Status::SADR && !W_stat == Status::SHLT;
 }
 
 uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
@@ -128,6 +138,17 @@ uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
 		return RegisterFile::RNONE;
 	}
 	return dstE;
+}
+
+// control signals method used previously.
+bool ExecuteStage::calculateControlSignals(PipeReg *wreg)
+{
+
+	uint64_t W_stat = wreg->get(W_stat);
+
+	return Stage::m_stat == Status::SADR || Stage::m_stat == Status::SINS ||
+		   Stage::m_stat == Status::SHLT || W_stat == Status::SADR ||
+		   W_stat == Status::SINS || W_stat == Status::SHLT;
 }
 
 uint64_t ExecuteStage::cc(bool zeroflag, bool signflag, bool overflow)
