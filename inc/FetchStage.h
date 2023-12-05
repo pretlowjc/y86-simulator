@@ -11,6 +11,12 @@ class FetchStage : public Stage
 {
 private:
    // TODO: provide declarations for new methods
+   bool D_bubble;
+   void mispredictedBranch(PipeReg *ereg,  PipeReg *dreg, PipeReg *mreg);
+   bool F_stall, D_stall;
+   bool stall_F(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg);
+   bool stall_D(PipeReg *ereg);
+   void calculateControlSignals(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg);
    uint64_t getRegIds(bool regResult);
    bool instr_valid(uint64_t f_icode);
    uint64_t f_stat(uint64_t f_icode, bool mem_error);

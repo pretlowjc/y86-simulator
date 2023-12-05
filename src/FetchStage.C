@@ -7,10 +7,12 @@
 #include "Instruction.h"
 #include "RegisterFile.h"
 #include "Status.h"
+#include "Stage.h"
 #include "F.h"
 #include "D.h"
 #include "M.h"
 #include "W.h"
+#include "E.h"
 #include "Tools.h"
 #include <iostream>
 
@@ -36,6 +38,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 	bool needregId = false;
 	PipeReg *wreg = pipeRegs->getWritebackReg();
 	PipeReg *mreg = pipeRegs->getMemoryReg();
+	PipeReg *ereg = pipeRegs->getExecuteReg();
 
 	// TODO: read lab assignment
 	// TODO
@@ -73,7 +76,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 	valP = PCincrement(f_pc, needregId, needvalC);
 
 	predPC = predictPC(icode, valC, valP);
-
+	calculateControlSignals(ereg, dreg, mreg);
 	freg->set(F_PREDPC, predPC);
 	setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
 	return false;
@@ -90,8 +93,16 @@ void FetchStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 	PipeReg *freg = pipeRegs->getFetchReg();
 	PipeReg *dreg = pipeRegs->getDecodeReg();
+	if(!F_stall){
 	freg->normal();
+	}
+	if(D_bubble){
+	((D *)dreg)->bubble();
+	}
+	else if(!D_stall){
 	dreg->normal();
+	}
+
 }
 
 /* setDInput
@@ -172,7 +183,7 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
 		return f_valC;
 
 	
-	return f_valP;
+	else return f_valP;
 }
 
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
@@ -262,4 +273,38 @@ uint64_t FetchStage::f_ifun(bool mem_error, uint64_t mem_ifun)
 	if (mem_error)
 		return Instruction::FNONE;
 	return mem_ifun;
+}
+
+bool FetchStage::stall_F(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
+uint64_t E_icode = ereg -> get(E_ICODE);
+uint64_t E_dstM = ereg -> get (E_DSTM);
+uint64_t D_icode = dreg -> get(D_ICODE);
+uint64_t M_icode = mreg -> get(M_ICODE);
+	return (((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)) || (Instruction::IRET == D_icode || Instruction::IRET == E_icode || Instruction::IRET == M_icode));
+}
+
+
+bool FetchStage::stall_D(PipeReg *ereg) {
+uint64_t E_icode = ereg -> get(E_ICODE);
+uint64_t E_dstM = ereg -> get (E_DSTM);
+
+return (E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB); 
+}
+
+
+void FetchStage::calculateControlSignals(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
+	F_stall = stall_F(ereg,dreg,mreg);
+	D_stall = stall_D(ereg);
+	mispredictedBranch(ereg,dreg,mreg);
+
+	
+	
+}
+
+void FetchStage::mispredictedBranch(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
+	uint64_t E_icode = ereg -> get(E_ICODE);
+	uint64_t E_dstM = ereg -> get(E_DSTM);
+	uint64_t D_icode = dreg -> get(D_ICODE);
+	uint64_t M_icode = mreg -> get(M_ICODE);
+	 D_bubble = ((E_icode == Instruction::IJXX && !e_Cnd)) ||  (!((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)) && (Instruction::IRET == D_icode || Instruction::IRET == E_icode || Instruction::IRET == M_icode));
 }
