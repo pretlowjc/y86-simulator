@@ -3,6 +3,7 @@
 #include "ExecuteStage.h"
 #include "E.h"
 #include "M.h"
+#include "W.h"
 #include "Tools.h"
 #include "Instruction.h"
 #include "ConditionCodes.h"
@@ -60,10 +61,10 @@ void ExecuteStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 	PipeReg *mreg = pipeRegs->getMemoryReg();
 	// doclockhigh modifcation
-	if (!M_bubble)
-		mreg->normal();
+	if (M_bubble)
+		((M *)mreg)->bubble();
 
-	((M *)mreg)->bubble();
+	else mreg -> normal();
 }
 
 void ExecuteStage::setMInput(PipeReg *reg, uint64_t stat, uint64_t icode,
@@ -125,10 +126,12 @@ uint64_t ExecuteStage::alufun(uint64_t e_icode, uint64_t ifun)
 // set_CC main method changed, changed the params, to follow HCL control logic
 bool ExecuteStage::set_cc(PipeReg *ereg, PipeReg *wreg)
 {
-	uint64_t W_stat = wreg->get(W_stat);
-	uint64_t E_icode = ereg->get(E_icode);
+	uint64_t W_stat = wreg->get(W_STAT);
+	uint64_t E_icode = ereg->get(E_ICODE);
 
-	return E_icode == Instruction::IOPQ && !Stage::m_stat == Status::SADR && !Stage::m_stat == Status::SINS && !Stage::m_stat == Status::SHLT && !W_stat == Status::SADR && !W_stat == Status::SHLT;
+	return (E_icode == Instruction::IOPQ) && 
+	(Stage::m_stat != Status::SADR && Stage::m_stat != Status::SINS && Stage::m_stat != Status::SHLT) && 
+	(W_stat != Status::SADR && W_stat != Status::SHLT && W_stat != Status::SINS);
 }
 
 uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
@@ -144,10 +147,10 @@ uint64_t ExecuteStage::e_dstE(uint64_t e_icode, uint64_t dstE)
 bool ExecuteStage::calculateControlSignals(PipeReg *wreg)
 {
 
-	uint64_t W_stat = wreg->get(W_stat);
+	uint64_t W_stat = wreg->get(W_STAT);
 
-	return Stage::m_stat == Status::SADR || Stage::m_stat == Status::SINS ||
-		   Stage::m_stat == Status::SHLT || W_stat == Status::SADR ||
+	return m_stat == Status::SADR || m_stat == Status::SINS ||
+		   m_stat == Status::SHLT || W_stat == Status::SADR ||
 		   W_stat == Status::SINS || W_stat == Status::SHLT;
 }
 

@@ -38,15 +38,17 @@ all: $(OBJS)
 
 # 3) need a .o target for each .C
 #    Remember each of these is dependent upon the .h files included by the .C
-$(OBJD)/ConditionCodes.o : $(INC)/ConditionCodes.h
-$(OBJD)/Memory.o : $(INC)/Memory.h
+## gotta continue adding rest of includes
+$(OBJD)/yess.o : $(INC)/Memory.h $(INC)/CPU.h $(INC)/Loader.h
+$(OBJD)/ConditionCodes.o : $(INC)/ConditionCodes.h $(INC)/Tools.h
+$(OBJD)/Memory.o : $(INC)/Memory.h $(INC)/Tools.h
 $(OBJD)/RegisterFile.o : $(INC)/RegisterFile.h
-$(OBJD)/Tools.o : $(INC)/Tools.h
-$(OBJD)/Loader.o : $(INC)/Loader.h
+$(OBJD)/Tools.o : $(INC)/Tools.h $(INC)/String.h 
+$(OBJD)/Loader.o : $(INC)/Loader.h $(INC)/Memory.h
 $(OBJD)/String.o : $(INC)/String.h
 $(OBJD)/CPU.o : $(INC)/CPU.h
 $(OBJD)/PipeReg.o : $(INC)/PipeReg.h
-$(OBJD)/PipeRegArray.o : $(INC)/PipeRegArray.h
+$(OBJD)/PipeRegArray.o : $(INC)/PipeRegArray.h 
 $(OBJD)/PipeRegField.o : $(INC)/PipeRegField.h
 $(OBJD)/MemoryStage.o : $(INC)/MemoryStage.h
 $(OBJD)/StageArray.o : $(INC)/StageArray.h
@@ -65,7 +67,7 @@ $(OBJD)/M.o : $(INC)/M.h
 $(OBJD)/E.o : $(INC)/E.h
 
 $(OBJD)/Stage.o : $(INC)/Stage.h
-# $(OBJD)/Status.o : $(INC)/Status.h
+#$(OBJD)/Status.o : $(INC)/Status.h
 
 
 

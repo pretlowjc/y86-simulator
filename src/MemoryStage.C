@@ -38,21 +38,20 @@ bool MemoryStage::doClockLow(PipeRegArray *pipeRegs)
 	{
 		m_valM = memory->getLong(address, error);
 	// checking if mem_error aka error? if so set m_stat to status::sadr
-		if (error)
-			mreg->set(m_stat, Status::SADR);
-		m_stat = mreg->get(M_STAT);
+		
 	}
 	// If mem_write returns true, use Memory class to write M_valA to memory.
-	if (mem_write(icode))
+	else if (mem_write(icode))
 	{
 		memory->putLong(valA, address, error);
 		// adding it here as well due to it saying everytime we access memory.
-		if (error)
-			mreg->set(m_stat, Status::SADR);
-		m_stat = mreg->get(M_STAT);
+		
 	}
-
-	setWInput(wreg, stat, icode, valE, m_valM, dstE, dstM);
+	if (error)
+			m_stat = Status::SADR;
+	else 
+		m_stat = stat;
+	setWInput(wreg, m_stat, icode, valE, m_valM, dstE, dstM);
 
 	return false;
 }

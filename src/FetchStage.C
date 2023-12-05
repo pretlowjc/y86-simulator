@@ -31,7 +31,7 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 	bool mem_error = false;
 	uint64_t icode = Instruction::INOP, ifun = Instruction::FNONE;
 	uint64_t rA = RegisterFile::RNONE, rB = RegisterFile::RNONE;
-	uint64_t valC = 0, valP = 0, stat = Status::SAOK, predPC = 0;
+	uint64_t valC = 0, valP = 0, stat = 0, predPC = 0;
 	bool needvalC = false;
 	bool needregId = false;
 	PipeReg *wreg = pipeRegs->getWritebackReg();
@@ -244,8 +244,8 @@ uint64_t FetchStage::f_stat(uint64_t f_icode, bool mem_error)
 		return Status::SINS;
 	if (f_icode == Instruction::IHALT)
 		return Status::SHLT;
-	else
-		return Status::SAOK;
+	
+	return Status::SAOK;
 }
 
 // third HCL
