@@ -144,7 +144,6 @@ void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
 //  ];
 uint64_t FetchStage::selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg)
 {
-	bool haserror = false;
 	uint64_t M_icode = mreg->get(M_ICODE);
 	uint64_t W_icode = wreg->get(W_ICODE);
 	uint64_t M_cnd = mreg->get(M_CND);

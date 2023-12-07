@@ -154,7 +154,7 @@ bool ExecuteStage::calculateControlSignals(PipeReg *wreg)
 		   W_stat == Status::SINS || W_stat == Status::SHLT;
 }
 
-uint64_t ExecuteStage::cc(bool zeroflag, bool signflag, bool overflow)
+void ExecuteStage::cc(bool zeroflag, bool signflag, bool overflow)
 {
 	bool error;
 	ConditionCodes *condcodes = ConditionCodes::getInstance();

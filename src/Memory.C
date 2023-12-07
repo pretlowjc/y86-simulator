@@ -30,14 +30,9 @@ Memory *Memory::getInstance()
 {
    if (memInstance == NULL)
    {
-      // is this POINTING at the address? unsure -- Michael Crespo
       memInstance = new Memory();
-      return memInstance;
    }
-   else
-   {
-      return memInstance;
-   }
+   return memInstance;
 }
 
 /**
@@ -53,7 +48,6 @@ Memory *Memory::getInstance()
  */
 uint64_t Memory::getLong(int32_t address, bool &imem_error)
 {
-   // Use Memory::size to check if an address is valid
    if ((address >= 0) && ((address % 8) == 0) && ((address + 7) < Memory::size))
    {
       imem_error = false;
@@ -79,7 +73,6 @@ uint64_t Memory::getLong(int32_t address, bool &imem_error)
  */
 uint8_t Memory::getByte(int32_t address, bool &imem_error)
 {
-   // Use Memory::size to check if an address is valid
    if (address >= 0 && address < Memory::size)
    {
       imem_error = false;
@@ -104,11 +97,9 @@ uint8_t Memory::getByte(int32_t address, bool &imem_error)
  */
 void Memory::putLong(uint64_t value, int32_t address, bool &imem_error)
 {
-   // Use Memory::size to check if an address is valid
    if ((address >= 0) && ((address % 8) == 0) && ((address + 7) < Memory::size))
    {
       imem_error = false;
-      // Copy 8 bytes from 'value' to 'mem' starting at 'address'
       for (int i = 0; i < 8; i++)
       {
          mem[address + i] = Tools::getByte(value, i);
@@ -133,7 +124,6 @@ void Memory::putLong(uint64_t value, int32_t address, bool &imem_error)
 
 void Memory::putByte(uint8_t value, int32_t address, bool &imem_error)
 {
-   // Use Memory::size to check if an address is valid
    if (address >= 0 && address < Memory::size)
    {
       imem_error = false;

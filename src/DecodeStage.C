@@ -31,12 +31,12 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	uint64_t icode = dreg->get(D_ICODE);
 	int64_t ifun = dreg->get(D_IFUN);
 	uint64_t valC = dreg->get(D_VALC);
-	uint64_t valA = 0; // ??
-	uint64_t valB = 0; // ??
+	uint64_t valA = 0;
+	uint64_t valB = 0;
 	uint64_t dstE = RegisterFile::RNONE;
 	uint64_t dstM = RegisterFile::RNONE;
-	uint64_t srcA = RegisterFile::RNONE;
-	uint64_t srcB = RegisterFile::RNONE;
+	// uint64_t srcA = RegisterFile::RNONE;
+	// uint64_t srcB = RegisterFile::RNONE;
 
 	uint64_t rA = dreg->get(D_RA);
 	uint64_t rB = dreg->get(D_RB);
@@ -47,8 +47,8 @@ bool DecodeStage::doClockLow(PipeRegArray *pipeRegs)
 	dstM = setDstM(icode, rA);
 	dstE = setDstE(icode, rB);
 
-	uint64_t d_rvalA = 0;
-	uint64_t d_rvalB = 0;
+	// uint64_t d_rvalA = 0;
+	// uint64_t d_rvalB = 0;
 
 	valA = SelFwdA(icode, dreg, wreg, mreg, d_srcA);
 	valB = FwdB(wreg, mreg, d_srcB);
@@ -69,7 +69,7 @@ void DecodeStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 
 	PipeReg *ereg = pipeRegs->getExecuteReg();
-	if(E_bubble)
+	if (E_bubble)
 		((E *)ereg)->bubble();
 	else
 		ereg->normal();
@@ -230,11 +230,11 @@ uint64_t DecodeStage::FwdB(PipeReg *wreg, PipeReg *mreg, uint64_t d_srcB)
 	return d_rvalB = rf->readRegister(d_srcB, hasError);
 }
 
-void DecodeStage::calculateControlSignals(PipeReg *ereg){
-	uint64_t E_icode = ereg -> get(E_ICODE);
-	uint64_t E_dstM = ereg -> get(E_DSTM);
-	E_bubble = (E_icode == Instruction::IJXX && !e_Cnd)|| 
-	(E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) 
-	&& (E_dstM == d_srcA || E_dstM == d_srcB);
-	
+void DecodeStage::calculateControlSignals(PipeReg *ereg)
+{
+	uint64_t E_icode = ereg->get(E_ICODE);
+	uint64_t E_dstM = ereg->get(E_DSTM);
+	E_bubble = ((E_icode == Instruction::IJXX && !e_Cnd) ||
+				((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) &&
+				 (E_dstM == d_srcA || E_dstM == d_srcB)));
 }

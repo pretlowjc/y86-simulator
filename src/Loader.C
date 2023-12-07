@@ -154,6 +154,7 @@ bool Loader::load()
    }
    return true;
 }
+
 bool Loader::badComment(String inputLine)
 {
    bool hasError = false;
@@ -161,6 +162,7 @@ bool Loader::badComment(String inputLine)
       return true;
    if (!inputLine.isChar('|', comment, hasError))
       return true;
+   return false;
 }
 
 bool Loader::badData(String inputLine)

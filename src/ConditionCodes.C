@@ -29,12 +29,8 @@ ConditionCodes *ConditionCodes::getInstance()
    if (ccInstance == NULL)
    {
       ccInstance = new ConditionCodes();
-      return ccInstance;
    }
-   else
-   {
-      return ccInstance;
-   }
+   return ccInstance;
 }
 
 /*
@@ -51,11 +47,8 @@ ConditionCodes *ConditionCodes::getInstance()
  */
 bool ConditionCodes::getConditionCode(int32_t ccNum, bool &error)
 {
-   // Use your getBits in Tools.C to get the bit out of codes.
-   // Don't use "magic" numbers.
    if (ccNum != OF && ccNum != SF && ccNum != ZF)
    {
-      // ccNum is out of range, return true!
       error = true;
       return 0;
    }
@@ -80,34 +73,24 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool &error)
  * @return error is set to true if ccNum is out of range and
  *         false otherwise
  */
-void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
-                                      bool &error)
+void ConditionCodes::setConditionCode(bool value, int32_t ccNum, bool &error)
 {
-   // Use your setBits and clearBits in Tools.C.
-   // Don't use "magic" numbers in your code.
-   // Magic numbers are 0, 1, and 2.
-   // Use ConditionCodes::OF, ConditionCodes::SF, and CondtionCodes::ZF instead
-   // of the magic numbers above.
    if (ccNum != OF && ccNum != SF && ccNum != ZF)
    {
-      // ccNum is out of range, codes does not get modified. Simply return.
       error = true;
       return;
    }
    else
    {
-      // If value is true then setBits, if false clearBits?
-      // We are modifying codes, thus codes must be give the value of setBits
-      // or clear bits?
-     if (value == 1)
-     {
-      codes = Tools::setBits(codes, ccNum, ccNum);
-     }
-     else
-     {
-      codes = Tools::clearBits(codes, ccNum, ccNum);
-     }
-     error = false;
+      if (value == 1)
+      {
+         codes = Tools::setBits(codes, ccNum, ccNum);
+      }
+      else
+      {
+         codes = Tools::clearBits(codes, ccNum, ccNum);
+      }
+      error = false;
    }
 }
 
