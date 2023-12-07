@@ -37,14 +37,13 @@ bool WritebackStage::doClockLow(PipeRegArray *pipeRegs)
  */
 void WritebackStage::doClockHigh(PipeRegArray *pipeRegs)
 {
-   // Use the RegisterFile::writeRegister method to write the value of W_valE to R[W_dstE].
    bool error = false;
    PipeReg *wreg = pipeRegs->getWritebackReg();
+
    uint64_t value = wreg->get(W_VALE);
    uint64_t dst = wreg->get(W_DSTE);
    rf->writeRegister(value, dst, error);
 
-   // Add a call to write the value of valM to the dstM.
    uint64_t valM = wreg->get(W_VALM);
    uint64_t dstM = wreg->get(W_DSTM);
    rf->writeRegister(valM, dstM, error);
