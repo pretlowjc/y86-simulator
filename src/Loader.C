@@ -155,6 +155,13 @@ bool Loader::load()
    return true;
 }
 
+/**
+ * badComment
+ * This method checks to see if there is a comment error in the file.
+ * @param inputLine line that we are checking for a bad comment.
+ * @returns boolean value of if there is a bad comment.
+ * 
+*/
 bool Loader::badComment(String inputLine)
 {
    bool hasError = false;
@@ -165,6 +172,12 @@ bool Loader::badComment(String inputLine)
    return false;
 }
 
+/**
+ * badData
+ * This method is checking to see whether or not the data is valid or not.
+ * @param inputLine line that we are checking for bad data.
+ * @returns boolean value of whether we have good data or not.
+*/
 bool Loader::badData(String inputLine)
 {
    bool error = false;
@@ -197,6 +210,12 @@ bool Loader::badData(String inputLine)
    return false;
 }
 
+/**
+ * isDataRecord
+ * This method checks to see whether the line contains a valid data record.
+ * @param inputLine This is the line that we are checking.
+ * @returns boolean telling us whether this is a good or bad data record.
+*/
 bool Loader::isDataRecord(String inputLine)
 {
    bool error = false;

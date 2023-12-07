@@ -60,7 +60,6 @@ char *String::get_cstr()
    char *cstr = new char[String::length + 1];
    strncpy(cstr, String::str, String::length);
    strncat(cstr, "\0", 1);
-
    return cstr;
 }
 
@@ -144,17 +143,17 @@ bool String::isRepeatingChar(char what, int32_t startIdx,
    if (len < 0 || badIndex(startIdx) || badIndex(endIdx))
    {
       error = true;
-      return false; // case 1.
+      return false;
    }
    error = false;
    for (int32_t i = startIdx; i <= endIdx; ++i)
    {
       if (str[i] != what)
       {
-         return false; // case 2
+         return false;
       }
    }
-   return true; // case 3
+   return true;
 }
 
 /*
@@ -194,24 +193,22 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
    Second time through loop: result = 0x2a
    Third time through loop: result = 0x2af
    */
-   error = false; // Initialize error flag to false
+   error = false;
 
-   // Check for invalid indices using the 'badIndex' method (Assuming it exists)
    if (badIndex(startIdx) || len <= 0 || badIndex(startIdx + len - 1))
    {
-      error = true; // Set error flag to true for invalid indices
+      error = true;
       return 0;
    }
 
-   uint32_t result = 0; // Initialize the result to 0
+   uint32_t result = 0;
 
    for (int i = startIdx; i < startIdx + len; i++)
    {
-      char c = str[i]; // Access the character from your array
+      char c = str[i];
 
       if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
       {
-         // If the character is a valid hex digit, convert and add it to the result
          if (c >= '0' && c <= '9')
          {
             result = (result << 4) + (c - '0');
@@ -227,11 +224,10 @@ uint32_t String::convert2Hex(int32_t startIdx, int32_t len, bool &error)
       }
       else
       {
-         error = true; // Set error flag to true for invalid hex characters
+         error = true;
          return 0;
       }
    }
-
    return result;
 }
 
@@ -254,10 +250,7 @@ bool String::isChar(char what, int32_t idx, bool &error)
    }
    error = false;
    return (str[idx] == what);
-   
-   }
-
-
+}
 
 /*
  * isHex
@@ -294,10 +287,9 @@ bool String::isHex(int32_t startIdx, int len, bool &error)
       if (!((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F')))
       {
          error = false;
-         return false; // case 2
+         return false;
       }
    }
-
    return true;
 }
 
@@ -338,7 +330,6 @@ bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
          return false;
       }
    }
-
    return true;
 }
 
@@ -358,13 +349,10 @@ bool String::isSubString(const char *subStr, int32_t startIdx, bool &error)
  */
 bool String::isSubString(std::string subStr, int32_t startIdx, bool &error)
 {
-   // HOW DO THESE TWO METHODS DIFFER??
-
-   // TODO
    if (length < 0 || badIndex(startIdx))
    {
       error = true;
-      return false; // case 1.
+      return false;
    }
 
    error = false;
