@@ -40,36 +40,21 @@ bool FetchStage::doClockLow(PipeRegArray *pipeRegs)
 	PipeReg *mreg = pipeRegs->getMemoryReg();
 	PipeReg *ereg = pipeRegs->getExecuteReg();
 
-	// TODO: read lab assignment
-	// TODO
-	// select PC value and read byte from memory
-
-	// set icode and ifun using byte read from memory
-
 	uint64_t f_pc = selectPC(freg, mreg, wreg);
 	uint64_t byte = mem->getByte(f_pc, mem_error);
-	// uint64_t f_icode = Tools::getBits(byte, 4, 7);
-	// uint64_t f_ifun = Tools::getBits(byte, 0, 3);
-	
-	// Fetch stage modifications, I switched f_ifun and f_icode to just ifun and icode
-	// below is where I set stat icode and ifun
+
 	icode = f_icode(mem_error, Tools::getBits(byte, 4, 7));
 	stat = f_stat(icode, mem_error);
-	ifun = f_ifun(mem_error,Tools::getBits(byte, 0, 3));
-	// // f_ifun = f_ifun(mem_error,f_ifun);
-
-	
+	ifun = f_ifun(mem_error, Tools::getBits(byte, 0, 3));
 
 	if (needRegIds(icode))
 	{
 		getRegIds(f_pc, &rA, &rB);
 	}
-
 	if (needValC(icode))
 	{
 		valC = buildValC(f_pc, needRegIds(icode));
 	}
-
 	needvalC = needValC(icode);
 	needregId = needRegIds(icode);
 
@@ -93,16 +78,18 @@ void FetchStage::doClockHigh(PipeRegArray *pipeRegs)
 {
 	PipeReg *freg = pipeRegs->getFetchReg();
 	PipeReg *dreg = pipeRegs->getDecodeReg();
-	if(!F_stall){
-	freg->normal();
+	if (!F_stall)
+	{
+		freg->normal();
 	}
-	if(D_bubble){
-	((D *)dreg)->bubble();
+	if (D_bubble)
+	{
+		((D *)dreg)->bubble();
 	}
-	else if(!D_stall){
-	dreg->normal();
+	else if (!D_stall)
+	{
+		dreg->normal();
 	}
-
 }
 
 /* setDInput
@@ -130,18 +117,16 @@ void FetchStage::setDInput(PipeReg *dreg, uint64_t stat, uint64_t icode,
 	dreg->set(D_VALC, valC);
 	dreg->set(D_VALP, valP);
 }
-// TODO
-// Write your selectPC, needRegIds, needValC, PC increment, and predictPC methods
-// Remember to add declarations for these to FetchStage.h
 
-// Here is the HCL describing the behavior for some of these methods.
-
-// selectPC method: input is F, M, and W registers
-//  word f_pc = [
-//     #1 M_icode == IJXX && !M_Cnd : M_valA;
-//     #2 W_icode == IRET : W_valM;
-//     #3 1: F_predPC;
-//  ];
+/**
+ * selectPC
+ * Chooses the value to be used as the PC to fetch the next instruction
+ * out of memory.
+ * @param freg Pointer to the F register instance.
+ * @param mreg Pointer to the M register instance.
+ * @param wreg Pointer to the W register instance.
+ * @return Returns the predicted pc.
+ */
 uint64_t FetchStage::selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg)
 {
 	uint64_t M_icode = mreg->get(M_ICODE);
@@ -154,37 +139,65 @@ uint64_t FetchStage::selectPC(PipeReg *freg, PipeReg *mreg, PipeReg *wreg)
 	else if (W_icode == Instruction::IRET)
 		return wreg->get(W_VALM);
 
-	return freg->get(F_PREDPC); // we set f_predpc to our predicted PC earlier.
+	return freg->get(F_PREDPC);
 }
 
-
+/**
+ * needRegIds
+ * This method tells us whether or not we need to get the register
+ * id's.
+ * @param f_icode takes in the icode for the fetch stage.
+ * @return Returns boolean value telling us whether we need the register's id?
+ */
 bool FetchStage::needRegIds(uint64_t f_icode)
 {
 	return (f_icode == Instruction::IRRMOVQ || f_icode == Instruction::IOPQ || f_icode == Instruction::IPUSHQ || f_icode == Instruction::IPOPQ || f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction::IMRMOVQ);
 }
 
-
+/**
+ * needValC
+ * This method is used to help calculate the address of the next sequential
+ * instruction in tandem with needRegIds.
+ * @param f_icode takes in the icode from fetch stage.
+ * @return Returns boolean value telling us whether we need valC or not based on
+ * what f_icode is.
+ */
 bool FetchStage::needValC(uint64_t f_icode)
 {
 	return (f_icode == Instruction::IIRMOVQ || f_icode == Instruction::IRMMOVQ || f_icode == Instruction::IJXX || f_icode == Instruction::ICALL || f_icode == Instruction::IMRMOVQ);
 }
 
-// predictPC method: inputs are f_icode, f_valC, f_valP
-//  word f_predPC = [
-//      #1 f_icode in { IJXX, ICALL } : f_valC;
-//      #2 1: f_valP;
-//  ];
+/**
+ * predictPC
+ * This method is used to predict what the pc is.
+ * @param f_icode takes in icode from the fetch stage.
+ * @param f_valC takes in the valC from the fetch stage.
+ * @param f_valP takes in the valP from the fetch stage.
+ * @returns returns either valC or valP depending upon what the instruction
+ * is.
+ */
 uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
 {
-
-	
-	if (f_icode == Instruction::IJXX || f_icode == Instruction::ICALL)
+	switch (f_icode)
+	{
+	case Instruction::IJXX:
+	case Instruction::ICALL:
 		return f_valC;
-
-	
-	else return f_valP;
+	default:
+		return f_valP;
+	}
 }
 
+/**
+ * PCincrement
+ * This method is used to increment the pc depending upon whether or not
+ * the result is of reg or valC.
+ * @param f_pc this is the value for the program counter.
+ * @param regResult this value is coming from needRegIds?
+ * @param valCResult this value is coming from needValC?
+ * @return the returns the correct pc depending upon where the result
+ * is coming from.
+ */
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
 {
 	if (regResult)
@@ -194,15 +207,16 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool regResult, bool valCResult)
 
 	return f_pc += 1;
 }
-/*
-   if need_regID is true...
 
-   Are we calling this method in doClockLow?
-
-   This method is used to read the register byte and initialize
-   rA and rB to the appropriate bits in the register byte. These are then used as input
-   to the D register.
-*/
+/**
+ * getRegIds
+ * This method is used to read the register byte and initialize rA and rB to
+ * the appropriate bits in the register byte. These are then used as input
+ * to the D register.
+ * @param r_pc takes in the pc.
+ * @param rA takes in a pointer to src register A.
+ * @param rB takes in a pointer to src register B.
+ */
 void FetchStage::getRegIds(int32_t f_pc, uint64_t *rA, uint64_t *rB)
 {
 	bool hasError;
@@ -213,6 +227,14 @@ void FetchStage::getRegIds(int32_t f_pc, uint64_t *rA, uint64_t *rB)
 	*rB = rB_bits;
 }
 
+/**
+ * buildValC
+ * This method is used to build valC by grabbing the byte from memory and then
+ * the buildLong method from our tools class.
+ * @param f_pc the pc
+ * @param needRegIds takes in the bool value from needRegIds
+ * @return This returns what valC is.
+ */
 uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegIds)
 {
 	bool hasError;
@@ -232,7 +254,13 @@ uint64_t FetchStage::buildValC(int32_t f_pc, bool needRegIds)
 	return Tools::buildLong(valC);
 }
 
-// first HCL
+/**
+ * instr_valid
+ * This method is checking whether an instruction is valid or not.
+ * @param f_icode Takes in the icode from the fetch stage.
+ * @return Returns boolean value telling us whether the instruction being passed
+ * is valid or not.
+ */
 bool FetchStage::instr_valid(uint64_t f_icode)
 {
 
@@ -244,21 +272,32 @@ bool FetchStage::instr_valid(uint64_t f_icode)
 			f_icode == Instruction::IPUSHQ || f_icode == Instruction::IPOPQ);
 }
 
-// second HCL
+/**
+ * f_stat
+ * This method will return what stat is during the Fetch stage.
+ * @param f_icode takes in icode from the fetch stage
+ * @param mem_error takes in the bool value from mem_error method telling us
+ * whether or not there is an error with memory.
+ * @return This method returns stat depending on three cases.
+ */
 uint64_t FetchStage::f_stat(uint64_t f_icode, bool mem_error)
 {
 	if (mem_error)
 		return Status::SADR;
-	//instr_valid method used here
 	if (!instr_valid(f_icode))
 		return Status::SINS;
 	if (f_icode == Instruction::IHALT)
 		return Status::SHLT;
-	
 	return Status::SAOK;
 }
 
-// third HCL
+/**
+ * f_icode
+ * This method is returning the icode for fetch stage.
+ * @param mem_error takes in boolean value of whether there is an error with memory.
+ * @param mem_icode takes in icode from memory.
+ * @return Returns correct icode for given case.
+ */
 uint64_t FetchStage::f_icode(bool mem_error, uint64_t mem_icode)
 {
 	if (mem_error)
@@ -266,7 +305,13 @@ uint64_t FetchStage::f_icode(bool mem_error, uint64_t mem_icode)
 	return mem_icode;
 }
 
-// fourth HCL
+/**
+ * f_ifun
+ * This method is returning ifun for the fetch stage.
+ * @param mem_error takes in boolean value of whether there is an error with memory.
+ * @param mem_ifun takes in ifun from memory.
+ * @return Returns correct ifun for a given case.
+ */
 uint64_t FetchStage::f_ifun(bool mem_error, uint64_t mem_ifun)
 {
 	if (mem_error)
@@ -274,36 +319,64 @@ uint64_t FetchStage::f_ifun(bool mem_error, uint64_t mem_ifun)
 	return mem_ifun;
 }
 
-bool FetchStage::stall_F(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
-uint64_t E_icode = ereg -> get(E_ICODE);
-uint64_t E_dstM = ereg -> get (E_DSTM);
-uint64_t D_icode = dreg -> get(D_ICODE);
-uint64_t M_icode = mreg -> get(M_ICODE);
+/**
+ * stall_F
+ * This method is to help prevent hazards by stalling the F stage if needed.
+ * @param ereg a pointer pointing to the e register.
+ * @param dreg a pointer pointing to the d register.
+ * @param mreg a pointer pointing to the m register.
+ * @return Returns a boolean value telling us whether we need to stall or not.
+ */
+bool FetchStage::stall_F(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg)
+{
+	uint64_t E_icode = ereg->get(E_ICODE);
+	uint64_t E_dstM = ereg->get(E_DSTM);
+	uint64_t D_icode = dreg->get(D_ICODE);
+	uint64_t M_icode = mreg->get(M_ICODE);
 	return (((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)) || (Instruction::IRET == D_icode || Instruction::IRET == E_icode || Instruction::IRET == M_icode));
 }
 
+/**
+ * stall_D
+ * This method is to help prevent hazards by stalling the D stage if needed.
+ * @param ereg a pointer pointing to the e register.
+ * @return Returns a boolean value telling us whether we need to stall or not.
+ */
+bool FetchStage::stall_D(PipeReg *ereg)
+{
+	uint64_t E_icode = ereg->get(E_ICODE);
+	uint64_t E_dstM = ereg->get(E_DSTM);
 
-bool FetchStage::stall_D(PipeReg *ereg) {
-uint64_t E_icode = ereg -> get(E_ICODE);
-uint64_t E_dstM = ereg -> get (E_DSTM);
-
-return (E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB); 
+	return (E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
 }
 
-
-void FetchStage::calculateControlSignals(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
-	F_stall = stall_F(ereg,dreg,mreg);
+/**
+ * calculateControlSignals
+ * This method is used to calculate the control signals.
+ * @param ereg a pointer to the e register.
+ * @param dreg a pointer to the d register.
+ * @param mreg a poitner to the m register.
+ */
+void FetchStage::calculateControlSignals(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg)
+{
+	F_stall = stall_F(ereg, dreg, mreg);
 	D_stall = stall_D(ereg);
-	mispredictedBranch(ereg,dreg,mreg);
-
-	
-	
+	mispredictedBranch(ereg, dreg, mreg);
 }
 
-void FetchStage::mispredictedBranch(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg){
-	uint64_t E_icode = ereg -> get(E_ICODE);
-	uint64_t E_dstM = ereg -> get(E_DSTM);
-	uint64_t D_icode = dreg -> get(D_ICODE);
-	uint64_t M_icode = mreg -> get(M_ICODE);
-	 D_bubble = ((E_icode == Instruction::IJXX && !e_Cnd)) ||  (!((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)) && (Instruction::IRET == D_icode || Instruction::IRET == E_icode || Instruction::IRET == M_icode));
+/**
+ * mispredictedBranch
+ * This method is used to set D_bubble and is used to help express the condition
+ * of a mispredicted branch.
+ * @param ereg a pointer to the e register.
+ * @param dreg a pointer to the d register.
+ * @param mreg a pointer to the m register.
+ */
+void FetchStage::mispredictedBranch(PipeReg *ereg, PipeReg *dreg, PipeReg *mreg)
+{
+	uint64_t E_icode = ereg->get(E_ICODE);
+	uint64_t E_dstM = ereg->get(E_DSTM);
+	uint64_t D_icode = dreg->get(D_ICODE);
+	uint64_t M_icode = mreg->get(M_ICODE);
+	D_bubble = ((E_icode == Instruction::IJXX && !e_Cnd)) || (!((E_icode == Instruction::IMRMOVQ || E_icode == Instruction::IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)) && (Instruction::IRET == D_icode || Instruction::IRET == E_icode || Instruction::IRET == M_icode));
 }
